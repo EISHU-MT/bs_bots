@@ -66,6 +66,9 @@ function bots.Hunt(self, enemy, prty)
 			--else
 				if dist < 4 then
 					--mobkit.hq_attack(self,prty+1,enemy)
+					-- Clear high queue & Attack!
+					mobkit.clear_queue_high(self)
+					
 					local from = bots.to_2d(self.object:get_pos())
 					local to = bots.to_2d(enemy:get_pos())
 					local offset_to = {
