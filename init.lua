@@ -81,13 +81,22 @@ bots = {
 	},
 	modpath = core.get_modpath(core.get_current_modname()),
 	wield_entity = {
-		physical = false,
-		collisionbox = {-0.125,-0.125,-0.125, 0.125,0.125,0.125},
-		visual = "wielditem",
-		textures = {"wield3d:hand"},
-		pointable = false,
-		wielder = nil,
-		static_save = false,
+		initial_properties = {
+			physical = false,
+			collisionbox = {-0.125,-0.125,-0.125, 0.125,0.125,0.125},
+			visual = "wielditem",
+			textures = {"wield3d:hand"},
+			pointable = false,
+			wielder = nil,
+			static_save = false,
+		},
+		holder = nil,
+		on_step = function(self)
+			local name = self.holder or Name(self.object:get_attach() or "")
+			if name then
+				self.object:set_properties({textures = {bots.in_hand_weapon[holder] or "wield3d:hand"}})
+			end
+		end,
 	},
 	to_2d = function(pos)
 		return {x = pos.x, y = pos.z}
@@ -155,6 +164,7 @@ function bots.register_bot(def)
 			wield_item_obj = nil,
 			object_name = "bs_bots:"..def.name,
 			state = "dead",
+			money = 20,
 		}
 		local bot_body_data = table.copy(bots.bots_body)
 		bot_body_data.textures = {"character.png^player_"..def.team.."_overlay.png"}
@@ -170,6 +180,7 @@ function bots.register_bot(def)
 		bot_body_data.on_punch = OnHurt
 		bot_body_data.on_death = OnDeath
 		core.register_entity("bs_bots:"..def.name, bot_body_data)
+		bots.in_hand_weapon[def.name] = "rangedweapons:glock17"
 	end
 end
 
