@@ -6,6 +6,7 @@ return function(self, killer)
 	local image = "hand_kill.png"
 	if killer:is_player() then
 		killer_weapon = killer:get_wielded_item():get_name()
+		bank.player_add_value(killer, 10)
 	else
 		local bot_info = killer:get_luaentity()
 		if bot_info then
@@ -19,6 +20,7 @@ return function(self, killer)
 					killer_weapon = bots.data[name].weapons.hand_weapon
 				end
 			end
+			bots.data[name].money = bots.data[name].money + 10
 		end
 	end
 	
