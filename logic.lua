@@ -66,156 +66,94 @@ function bbp.WhileOnPrepareTime(self)
 	end
 end
 
-bots.in_hand_weapon = {}
-bots.queue_shot = {}
-
-bots.timer = 0
-local step = function(dtime)
-	--bots.timer = bots.timer + dtime
-	--if bots.timer >= 0.1 then
-		for name, val in pairs(bots.queue_shot) do
-			--print(val)
-			
-			if type(val) == "number" and not (val <= 0) then
-				bots.queue_shot[name] = bots.queue_shot[name] - dtime
-			else
-				bots.queue_shot[name] = nil
-				bots.data[name].object:set_animation(bots.bots_animations[name].stand, 30, 0)
-			end
-		end
-	--	bots.timer = 0
-	--end
-end
-
-core.register_globalstep(step)
+local C = CountTable
 
 return function(self)
+	mobkit.vitals(self)
 	if bs_match.match_is_started then
 		loaded_bots = {}
-		
-		local enemy_table = GetObjectsNearBot(self, true, 200)
-		local enemy_to_hunt = enemy_table[math.random(#enemy_table)]-- Poor enemy.
-		bots.Hunt(self, enemy_to_hunt, mobkit.get_queue_priority(self))
-		
-		-- Now is the time for bullets!
-		if not bots.queue_shot[self.bot_name] then
-			for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), 60)) do
-				if obj:is_player() or (obj:get_luaentity() and obj:get_luaentity().bot_name) then
-					local lua_entity = obj:get_luaentity()
-					if lua_entity and lua_entity.bot_name ~= self.bot_name and lua_entity.team ~= self.team then
-						local pos = CheckPos(self.object:get_pos())
-						local to_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
-						local to_pos2 = CheckPos({x = obj:get_pos().x, y = obj:get_pos().y , z = obj:get_pos().z})
-						print(bots.line_of_sight(pos, to_pos2), self.bot_name)
-						if bots.line_of_sight(pos, to_pos2) then
-							
-							--print("USED")
-							
-							local to_use = ""
-							if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
-								to_use = bots.data[self.bot_name].weapons.hard_weapon
-							elseif bots.data[self.bot_name].weapons.hand_weapon ~= "" then
-								to_use = bots.data[self.bot_name].weapons.hand_weapon
-							end
-							if vector.distance(pos, obj:get_pos()) <= 5 then
-								--mobkit.hq_attack(self,mobkit.get_queue_priority(self)+1,obj)
-								bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-								obj:punch(self.object, nil, {damage_groups = {fleshy = 5}}, nil)
-								print("HURTING by bot")
-							else
-								local itemstack = ItemStack(to_use)
-								if itemstack and itemstack ~= "" then
-									if itemstack:get_name() == "" then
-										return
-									end
-									
-									bots.in_hand_weapon[self.bot_name] = to_use
-									
-									bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-									
-									local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage -- can be changed.
-									local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
-									mobkit.turn2yaw(self, minetest.dir_to_yaw(vector.direction(to_pos, to_pos2)), 1.2)
-									local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
-									local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
-									bots.shoot(1, damage or 5, "bs_bots:bullet", sound, velocity, self, obj)
-									bots.queue_shot[self.bot_name] = cooldown - (cooldown/3)
-									if bots.data[self.bot_name].wield_item_obj then
-										bots.data[self.bot_name].wield_item_obj:set_properties({
-											textures = {itemstack:get_name()},
-											visual_size = {x=0.25, y=0.25},
-										})
-									end
-								else
-									--print()
-								end
-							end
-						else
-							if vector.distance(pos, CheckPos(obj:get_pos())) <= 4 then
-								--bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-								--obj:punch(self.object, nil, {damage_groups = {fleshy = 5}}, nil)
-								mobkit.hq_attack(self,mobkit.get_queue_priority(self)+1,obj)
-								--print("HURTING")
-							end
-						end
-					elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team and not bs.spectator[Name(obj)] then
-						
-						local pos = CheckPos(self.object:get_pos())
-						local to_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
-						local to_pos2 = CheckPos(obj:get_pos())
-						if bots.line_of_sight(pos, to_pos2) then
-							
-							--print("USED")
-							
-							local to_use = ""
-							if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
-								to_use = bots.data[self.bot_name].weapons.hard_weapon
-							elseif bots.data[self.bot_name].weapons.hand_weapon ~= "" then
-								to_use = bots.data[self.bot_name].weapons.hand_weapon
-							end
-							if vector.distance(pos, obj:get_pos()) <= 5 then
-								--mobkit.hq_attack(self,mobkit.get_queue_priority(self)+1,obj)
-								bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-								obj:punch(self.object, nil, {damage_groups = {fleshy = 5}}, nil)
-								print("HURTING")
-							else
-								local itemstack = ItemStack(to_use)
-								if itemstack and itemstack ~= "" then
-									if itemstack:get_name() == "" then
-										return
-									end
-									
-									bots.in_hand_weapon[self.bot_name] = to_use
-									
-									bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-									
-									local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage -- can be changed.
-									local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
-									mobkit.turn2yaw(self, minetest.dir_to_yaw(vector.direction(to_pos, to_pos2)), 1.2)
-									local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
-									local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
-									bots.shoot(1, damage or 5, "bs_bots:bullet", sound, velocity, self, obj)
-									bots.queue_shot[self.bot_name] = cooldown - (cooldown/3)
-									if bots.data[self.bot_name].wield_item_obj then
-										bots.data[self.bot_name].wield_item_obj:set_properties({
-											textures = {itemstack:get_name()},
-											visual_size = {x=0.25, y=0.25},
-										})
-									end
-								else
-									--print()
-								end
-							end
-						else
-							if vector.distance(pos, CheckPos(obj:get_pos())) <= 4 then
-								mobkit.hq_attack(self,mobkit.get_queue_priority(self)+1,obj)
-								--bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, 30, 0)
-								--obj:punch(self.object, nil, {damage_groups = {fleshy = 5}}, nil)
-								--print("HURTING")
-							end
+		-- Hunt logic
+		if C(maps.current_map.teams) > 2 then
+			local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
+			if C(team_enemies) >= 1 then
+				local selected = team_enemies[1]
+				if selected and bs.team[selected].state == "alive" then
+					local enemies = bs.get_team_players(selected)
+					bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self))
+				end
+			end
+		else
+			local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
+			if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
+				local enemies = bs.get_team_players(team_enemy)
+				bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self))
+			end
+		end
+		-- In Bot View logic
+		local detected = {}
+		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range)) do
+			if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
+				local obj_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
+				local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
+				if bots.is_in_bot_view(self, obj) then
+					if obj:get_luaentity() and obj:get_luaentity().bot_name then
+						if self.bot_name and obj:get_luaentity() and bots.data[obj:get_luaentity().bot_team or ""] and bots.data[obj:get_luaentity().bot_team].team ~= bots.data[self.bot_name].team then
+							table.insert(detected, obj)
 						end
 					end
 				end
+			elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
+				local obj_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
+				local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
+				if bots.is_in_bot_view(self, obj) then
+					if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
+						table.insert(detected, obj)
+					end
+				end
+			end
+		end
+		-- In Bot Weapons
+		local to_shoot = detected--{}
+		--for _, obj in pairs(detected) do
+		--	local obj_pos = CheckPos(obj:get_pos())
+		--	local self_pos = CheckPos(self.object:get_pos())
+		--	if (core.line_of_sight(obj_pos, self_pos) == nil or core.line_of_sight(obj_pos, self_pos) == true) or (bots.line_of_sight(obj_pos, self_pos)) then
+		--		table.insert(to_shoot, obj)
+		--		print("inserted")
+		--	end
+		--	print("is detected")
+		--end
+		-- Gun Engine
+		local name = self.bot_name
+		for _, obj in pairs(to_shoot) do
+			if bots.path_finder_running[self.bot_name] then
+				bots.data[name].object:set_animation(bots.bots_animations[name].walk_mine, bots.bots_animations[name].anispeed, 0)
+			else
+				bots.data[name].object:set_animation(bots.bots_animations[name].mine, bots.bots_animations[name].anispeed, 0)
+			end
+			local to_use = ""
+			if bots.data[name].weapons.hard_weapon ~= "" then
+				to_use = bots.data[name].weapons.hard_weapon
+			elseif bots.data[name].weapons.hand_weapon ~= "" then
+				to_use = bots.data[name].weapons.hand_weapon
+			end
+			local itemstack = ItemStack(to_use)
+			if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
+				bots.in_hand_weapon[self.bot_name] = to_use
+				local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
+				local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
+				local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
+				local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
+				bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
+				bots.queue_shot[name] = cooldown or 0.1
+				if bots.data[name].wield_item_obj then
+					bots.data[name].wield_item_obj:set_properties({
+						textures = {itemstack:get_name()},
+						visual_size = {x=0.25, y=0.25},
+					})
+				end
+			else
+				--print()
 			end
 		end
 	else
