@@ -156,7 +156,7 @@ return function(self)
 				local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
 				bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
 				if weapon_type == "hand_weapon" then
-					bots.queue_shot[name] = 0.65
+					bots.queue_shot[name] = 1
 				else
 					bots.queue_shot[name] = cooldown or 0.1
 				end
