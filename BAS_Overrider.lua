@@ -36,7 +36,7 @@ function bs.get_team_players(team)
 	for name, data in pairs(bots.data) do
 		if data.team == team then
 			if data.state == "alive" then
-				table.insert(bots, data.object)
+				table.insert(botss, data.object)
 			end
 		end
 	end
