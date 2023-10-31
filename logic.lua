@@ -46,6 +46,8 @@ function bbp.WhileOnPrepareTime(self)
 				bots.data[BotName].wield_item_obj = nil
 			end
 			local WieldObject = core.add_entity(Object:get_pos(), "bs_bots:wield_item")
+			local WieldObjectEntity = WieldObject:get_luaentity()
+			WieldObjectEntity.holder = self.bot_name
 			bots.data[BotName].wield_item_obj = WieldObject
 			WieldObject:set_attach(Object, "Arm_Right", {x=0, y=5.5, z=3}, {x=-90, y=225, z=90})
 			local to_be_seen = ""
@@ -137,10 +139,13 @@ return function(self)
 				bots.data[name].object:set_animation(bots.bots_animations[name].mine, bots.bots_animations[name].anispeed, 0)
 			end
 			local to_use = ""
+			local weapon_type = "hand_weapon"
 			if bots.data[name].weapons.hard_weapon ~= "" then
 				to_use = bots.data[name].weapons.hard_weapon
+				weapon_type = "hard_weapon"
 			elseif bots.data[name].weapons.hand_weapon ~= "" then
 				to_use = bots.data[name].weapons.hand_weapon
+				weapon_type = "hand_weapon"
 			end
 			local itemstack = ItemStack(to_use)
 			if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
@@ -150,7 +155,7 @@ return function(self)
 				local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
 				local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
 				bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
-				if to_use == bots.data[name].weapons.hand_weapon then
+				if weapon_type == "hand_weapon" then
 					bots.queue_shot[name] = 0.65
 				else
 					bots.queue_shot[name] = cooldown or 0.1
