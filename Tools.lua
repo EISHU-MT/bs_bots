@@ -2,18 +2,52 @@ function bots.line_of_sight(pos1, pos2)
 	local ray = minetest.raycast(pos1, pos2, true, true)
 	local thing = ray:next()
 	while thing do
-		if thing.type == "node" then
-			local name = minetest.get_node(thing.under).name
-			if minetest.registered_items[name] and not (minetest.registered_items[name].walkable or minetest.registered_items[name].groups.liquid) then
-				return false
+		if thing then
+			if thing.type == "node" then
+				local name = minetest.get_node(thing.under).name
+				if minetest.registered_items[name] and (minetest.registered_items[name].walkable or minetest.registered_items[name].groups.liquid) then
+					return false
+				end
 			end
+			thing = ray:next()
+			print(dump(thing))
 		end
-		thing = ray:next()
 	end
 	return true
 end
 
-
+function bots.is_in_bot_view(self, obj)
+	local team = ""
+	if obj:is_player() then
+		team = bs_old.get_player_team_css(obj)
+	elseif obj:get_luaentity() and obj:get_luaentity().bot_name then
+		team = bots.data[obj:get_luaentity().bot_name].team
+	end
+	if bots.data[self.bot_name].team ~= team then
+		local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
+		local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
+		local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
+		local ray = raycast:next()
+		local has_error = false
+		if ray then
+			while ray do
+				if ray then
+					if ray.type == "node" then
+						local nodename = minetest.get_node(ray.under).name
+						if core.registered_nodes[nodename] then
+							if not core.registered_nodes[nodename].walkable then
+								has_error = true
+								break
+							end
+						end
+					end
+					ray = raycast:next()
+				end
+			end
+		end
+		if has_error then return false else return true end
+	end
+end
 
 local max_lengh = 160
 --function bots.find_path_to(start_pos, end_pos, len)
