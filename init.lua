@@ -140,6 +140,7 @@ dofile(bots.modpath.."/BotsView.lua")
 dofile(bots.modpath.."/movements.lua")
 dofile(bots.modpath.."/chat.lua")
 dofile(bots.modpath.."/match_engine_v2.lua")
+dofile(bots.modpath.."/shoot_queue.lua")
 
 
 function bots.register_bot(def)
