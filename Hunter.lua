@@ -11,9 +11,9 @@ function bots.Hunt(self, enemy, prty)
 		return
 	end
 	
-	if not enemy then return end
-	if not self then return end
-	if not prty then return end
+	if not enemy then core.log("error", "Bug: No enemy to hunt, but bots.Hunt() is executed.") return end
+	if not self then core.log("error", "Bug: The bot that are used to hunt is not found!.") return end
+	if not prty then core.log("error", "Bug: No priority found, bots.Hunt().") return end
 	
 	bots.hunting[self.bot_name] = enemy
 
@@ -50,9 +50,11 @@ function bots.Hunt(self, enemy, prty)
 			
 			local p = bots.find_path_to(CheckPos(pos), CheckPos(opos))
 			
-			if p then
-				bots.active_path_to(self, p, 1.2)
+			if p and CountTable(p) > 0 then
+				bots.active_path_to(self, p, 1.5)
 				return
+			else
+				mobkit.goto_next_waypoint(self,opos)
 			end
 			
 			--if GetObjectsInBotView(self, true)[1] then
@@ -62,13 +64,19 @@ function bots.Hunt(self, enemy, prty)
 				--bots.hunter_time[self.bot_name] = nil
 			--	return true
 			--else
-				if dist > 3 and dist < 20 then
-					bots.active_path_to(self, bots.find_path_to(pos, opos), 1.2)
-				elseif dist > 5 then
-					mobkit.goto_next_waypoint(self,opos)
-				end
-				if dist < 3 then
-					mobkit.hq_attack(self,prty+1,enemy)
+				if dist < 4 then
+					--mobkit.hq_attack(self,prty+1,enemy)
+					local from = bots.to_2d(self.object:get_pos())
+					local to = bots.to_2d(enemy:get_pos())
+					local offset_to = {
+						x = to.x - from.x,
+						y = to.y - from.y
+					}
+					
+					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+					self.object:set_yaw(dir)
+					self.object:set_animation(bots.bots_animations[self.bot_name].mine, bots.bots_animations[self.bot_name].anispeed, 0)
+					mobkit.lq_jumpattack(self,height,target)
 				end
 			--end
 		end
