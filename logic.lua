@@ -150,7 +150,11 @@ return function(self)
 				local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
 				local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
 				bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
-				bots.queue_shot[name] = cooldown or 0.1
+				if to_use == bots.data[name].weapons.hand_weapon then
+					bots.queue_shot[name] = 0.65
+				else
+					bots.queue_shot[name] = cooldown or 0.1
+				end
 				if bots.data[name].wield_item_obj then
 					bots.data[name].wield_item_obj:set_properties({
 						textures = {itemstack:get_name()},
