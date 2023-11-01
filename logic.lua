@@ -105,7 +105,7 @@ return function(self)
 					if obj:get_luaentity() and obj:get_luaentity().bot_name then
 						if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
 							table.insert(detected, obj)
-							print("Added "..Name(obj))
+							--print("Added "..Name(obj))
 						end
 					end
 				end
