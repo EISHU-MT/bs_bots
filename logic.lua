@@ -13,7 +13,7 @@ function bbp.WhileOnPrepareTime(self)
 			loaded_bots[LuaEntity.bot_name] = true
 			-- Load All Data!
 			local Money = bots.data[LuaEntity.bot_name].money
-			local FavoriteWeapons = bots.favorite_weapons[LuaEntity.bot_name]
+			local FavoriteWeapons = table.copy(bots.favorite_weapons[LuaEntity.bot_name])
 			local BotName = LuaEntity.bot_name
 			local Object = self.object
 			-- We should do buy weapons
