@@ -79,7 +79,7 @@ function bots.Hunt(self, enemy, prty)
 					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
 					self.object:set_yaw(dir)
 					self.object:set_animation(bots.bots_animations[self.bot_name].mine, bots.bots_animations[self.bot_name].anispeed, 0)
-					mobkit.lq_jumpattack(self,height,target)
+					enemy:punch(self.object, nil, {damage_groups = {fleshy=5}}, nil)
 				end
 			--end
 		end
