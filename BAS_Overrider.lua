@@ -62,7 +62,10 @@ function bs.get_team_players_index(team)
 			end
 		end
 	end
-	local pi = #bs_old.get_team_players(team)
+	local pi = 0
+	if bs_old.get_team_players(team) then
+		pi = #bs_old.get_team_players(team)
+	end
 	return pi + i
 end
 
