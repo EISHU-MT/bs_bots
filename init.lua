@@ -255,7 +255,7 @@ end
 core.register_globalstep(step)
 
 bots.register_bot({
-	name = "Susi",
+	name = "Claude",
 	team = "blue",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
@@ -270,7 +270,7 @@ bots.register_bot({
 })
 
 bots.register_bot({
-	name = "Mano",
+	name = "Karl",
 	team = "red",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
@@ -285,7 +285,7 @@ bots.register_bot({
 })
 
 bots.register_bot({
-	name = "Claudio",
+	name = "Eugene",
 	team = "red",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
@@ -300,7 +300,7 @@ bots.register_bot({
 })
 
 bots.register_bot({
-	name = "Pepa",
+	name = "Tsar",
 	team = "blue",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
@@ -315,7 +315,7 @@ bots.register_bot({
 })
 
 bots.register_bot({
-	name = "Mao",
+	name = "Tiago",
 	team = "red",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
@@ -330,7 +330,7 @@ bots.register_bot({
 })
 
 bots.register_bot({
-	name = "Poseidon",
+	name = "Juan",
 	team = "blue",
 	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
 	animations = {
