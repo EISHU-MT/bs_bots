@@ -147,22 +147,24 @@ return function(self)
 			end
 			local itemstack = ItemStack(to_use)
 			if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
-				bots.in_hand_weapon[self.bot_name] = to_use
-				local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
-				local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
-				local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
-				local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
-				bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
-				if weapon_type == "hand_weapon" then
-					bots.queue_shot[name] = 1
-				else
-					bots.queue_shot[name] = cooldown or 0.1
-				end
-				if bots.data[name].wield_item_obj then
-					bots.data[name].wield_item_obj:set_properties({
-						textures = {itemstack:get_name()},
-						visual_size = {x=0.25, y=0.25},
-					})
+				if not bots.queue_shot[name] then
+					bots.in_hand_weapon[self.bot_name] = to_use
+					local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
+					local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
+					local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
+					local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
+					bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
+					if weapon_type == "hand_weapon" then
+						bots.queue_shot[name] = 0.4
+					else
+						bots.queue_shot[name] = cooldown or 0.1
+					end
+					if bots.data[name].wield_item_obj then
+						bots.data[name].wield_item_obj:set_properties({
+							textures = {itemstack:get_name()},
+							visual_size = {x=0.25, y=0.25},
+						})
+					end
 				end
 			else
 				--print()
