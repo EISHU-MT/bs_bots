@@ -6,7 +6,6 @@ local step = function(dtime)
 	--bots.timer = bots.timer + dtime
 	--if bots.timer >= 0.1 then
 		for name, val in pairs(bots.queue_shot) do
-			print(name, val)
 			if val > 0 then
 				bots.queue_shot[name] = bots.queue_shot[name] - dtime
 			else
