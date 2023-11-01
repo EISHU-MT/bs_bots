@@ -62,6 +62,7 @@ function bbp.WhileOnPrepareTime(self)
 			})
 			-- Prepare Nametag
 			bots.add_nametag(Object, bots.data[BotName].team, BotName)
+			self.object:set_animation(bots.bots_animations[self.bot_name].stand, bots.bots_animations[self.bot_name].anispeed, 0)
 		end
 	else
 		core.log("error", "~BS BOTS: Unknown Object Found!")
@@ -98,20 +99,17 @@ return function(self)
 		end
 		-- In Bot View logic
 		local detected = {}
-		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range)) do
+		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+10)) do
 			if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
-				local obj_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
-				local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
 				if bots.is_in_bot_view(self, obj) then
 					if obj:get_luaentity() and obj:get_luaentity().bot_name then
-						if self.bot_name and obj:get_luaentity() and bots.data[obj:get_luaentity().bot_team or ""] and bots.data[obj:get_luaentity().bot_team].team ~= bots.data[self.bot_name].team then
+						if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
 							table.insert(detected, obj)
+							print("Added "..Name(obj))
 						end
 					end
 				end
 			elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
-				local obj_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
-				local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
 				if bots.is_in_bot_view(self, obj) then
 					if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
 						table.insert(detected, obj)
