@@ -38,6 +38,10 @@ return function(self, killer)
 	
 	TheEnd()
 	
+	if bs.get_player_team_css(killer_name) == "" then
+		return
+	end
+	
 	KillHistory.RawAdd(
 		{text = killer_name, color = bs.get_team_color(bs.get_player_team_css(killer_name), "number")},
 		image,
