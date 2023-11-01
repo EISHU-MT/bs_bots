@@ -44,10 +44,10 @@ function bs.get_team_players(team)
 	local players = bs_old.get_team_players(team)
 	-- Add
 	local bots_and_players = {}
-	for _, obj in pairs(botss) do
+	for _, obj in pairs(botss or {}) do
 		table.insert(bots_and_players, obj)
 	end
-	for _, obj in pairs(players) do
+	for _, obj in pairs(players or {}) do
 		table.insert(bots_and_players, bs_old.Player(obj))
 	end
 	return bots_and_players
