@@ -99,7 +99,7 @@ return function(self)
 		end
 		-- In Bot View logic
 		local detected = {}
-		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+10)) do
+		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+30)) do
 			if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
 				if bots.is_in_bot_view(self, obj) then
 					if obj:get_luaentity() and obj:get_luaentity().bot_name then
