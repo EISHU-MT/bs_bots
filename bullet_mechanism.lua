@@ -59,6 +59,7 @@ local def = {
 		lastpos = {},
 		collide_with_objects = true,
 		collisionbox = {-0.0025, -0.0025, -0.0025, 0.0025, 0.0025, 0.0025},
+		static_save = false,
 	},
 	owner = {},
 	damage = 5, -- Default
