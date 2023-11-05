@@ -15,8 +15,7 @@ local function on_step(self, dtime, mr)
 				return
 			end
 			local ObjectTeam = bs.get_player_team_css(collisions.object)
-			local SelfLuaEntity = self.owner:get_luaentity()
-			if SelfLuaEntity and ObjectTeam ~= bots.data[SelfLuaEntity.bot_name].team then
+			if not (ObjectTeam == bots.data[Name(self.owner)].team) then
 				collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
 			end
 			self.object:remove()
