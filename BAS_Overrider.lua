@@ -156,7 +156,7 @@ core.register_on_player_hpchange(function(player, hp, reason)
 							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
 							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
 							bs.allocate_to_spectator(player, true)
-							stats.deaths.add_to(player)
+							stats.deaths.add_to(Name(player))
 						end
 					end
 				else
@@ -166,7 +166,7 @@ core.register_on_player_hpchange(function(player, hp, reason)
 						PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
 						RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
 						bs.allocate_to_spectator(player, true)
-						stats.deaths.add_to(player)
+						stats.deaths.add_to(Name(player))
 					end
 				end
 			else

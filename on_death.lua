@@ -11,7 +11,7 @@ return function(self, killer)
 			PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
 		end
 		score.add_score_to(killer, 10)
-		stats.kills.add_to(killer)
+		stats.kills.add_to(Name(killer))
 	else
 		local bot_info = killer:get_luaentity()
 		if bot_info then
