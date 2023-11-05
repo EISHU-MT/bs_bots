@@ -156,14 +156,18 @@ core.register_on_player_hpchange(function(player, hp, reason)
 							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
 							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
 							bs.allocate_to_spectator(player, true)
+							stats.deaths.add_to(player)
 						end
 					end
 				else
 					core.log("warning", "Error: A bot punched his teammate. This error should not appear.")
-					local hitter = reason.object
-					PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
-					RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
-					bs.allocate_to_spectator(player, true)
+					if player:get_hp() - damage <= 0 then
+						local hitter = reason.object
+						PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+						RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+						bs.allocate_to_spectator(player, true)
+						stats.deaths.add_to(player)
+					end
 				end
 			else
 				core.log("error", "Attempt of crash blocked!: Bot data dont exists, this maybe is a bug or its a mod making conflicts.")
