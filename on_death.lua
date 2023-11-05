@@ -7,6 +7,10 @@ return function(self, killer)
 	if killer:is_player() then
 		killer_weapon = killer:get_wielded_item():get_name()
 		bank.player_add_value(killer, 10)
+		if PlayerKills[Name(killer)] and PlayerKills[Name(killer)].kills then
+			PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
+		end
+		score.add_score_to(killer, 10)
 	else
 		local bot_info = killer:get_luaentity()
 		if bot_info then
