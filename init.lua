@@ -212,23 +212,25 @@ function bots.add_nametag(obj, team, name)
 	if not team then return end
 	
 	local entity = core.add_entity(obj:get_pos(), "bs_bots:nametag")
-	local texture = "tag_bg.png"
-	local x = math.floor(134 - ((name:len() * 11) / 2))
-	local i = 0
-	name:gsub(".", function(char)
-		local n = "_"
-		if char:byte() > 96 and char:byte() < 123 or char:byte() > 47 and char:byte() < 58 or char == "-" then
-			n = char
-		elseif char:byte() > 64 and char:byte() < 91 then
-			n = "U" .. char
-		end
-		texture = texture.."^[combine:84x14:"..(x+i)..",0=W_".. n ..".png"
-		i = i + 11
-	end)
-	texture = texture.."^[colorize:"..bs.get_team_color(team, "string")..":255"
-	entity:set_properties({ textures={texture} })
-	entity:set_attach(obj, "", player_tags.configs.coords, {x=0, y=0, z=0})
-	bots.data[name].nametag = entity
+	if entity then
+		local texture = "tag_bg.png"
+		local x = math.floor(134 - ((name:len() * 11) / 2))
+		local i = 0
+		name:gsub(".", function(char)
+			local n = "_"
+			if char:byte() > 96 and char:byte() < 123 or char:byte() > 47 and char:byte() < 58 or char == "-" then
+				n = char
+			elseif char:byte() > 64 and char:byte() < 91 then
+				n = "U" .. char
+			end
+			texture = texture.."^[combine:84x14:"..(x+i)..",0=W_".. n ..".png"
+			i = i + 11
+		end)
+		texture = texture.."^[colorize:"..bs.get_team_color(team, "string")..":255"
+		entity:set_properties({ textures={texture} })
+		entity:set_attach(obj, "", player_tags.configs.coords, {x=0, y=0, z=0})
+		bots.data[name].nametag = entity
+	end
 end
 
 -- Heres the magic occurs.
