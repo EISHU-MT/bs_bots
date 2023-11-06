@@ -26,7 +26,7 @@ function bots.is_in_bot_view(self, obj)
 	if bots.data[self.bot_name].team ~= team then
 		local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
 		local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
-		local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
+		local raycast = minetest.raycast(self_pos, enemy_pos, true, false)
 		local ray = raycast:next()
 		local has_error = false
 		if ray then
@@ -38,6 +38,18 @@ function bots.is_in_bot_view(self, obj)
 							if not core.registered_nodes[nodename].walkable then
 								has_error = true
 								break
+							end
+						end
+					elseif ray.type == "object" then
+						if ray.ref then
+							if ray.ref:is_player() and bs.get_player_team_css(ray.ref) == bots.data[self.bot_name].team then
+								has_error = true
+								break
+							elseif ray.ref:get_luaentity() and ray.ref:get_luaentity().bot_name then
+								if bots.data[self.bot_name].team == bots.data[ray.ref:get_luaentity().bot_name].team then
+									has_error = true
+									break
+								end
 							end
 						end
 					end
