@@ -5,6 +5,8 @@
 bbp = {}
 loaded_bots = {} -- Need to flush when a match starts
 
+bots.logics = {} -- a, b, c
+
 function bbp.WhileOnPrepareTime(self)
 	local LuaEntity = self.object:get_luaentity()
 	if LuaEntity and LuaEntity.bot_name and bots.data[LuaEntity.bot_name] then
