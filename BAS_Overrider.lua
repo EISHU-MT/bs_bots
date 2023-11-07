@@ -104,7 +104,7 @@ function Name(thing)
 			end
 		end
 	end
-	return ""
+	return 
 end
 
 function Player(thing)
