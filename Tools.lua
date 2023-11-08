@@ -57,6 +57,7 @@ function bots.is_in_bot_view(self, obj)
 				end
 			end
 		end
+			
 		if has_error then return false else return true end
 	end
 end
