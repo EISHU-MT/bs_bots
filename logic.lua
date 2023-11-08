@@ -102,19 +102,21 @@ return function(self)
 		-- In Bot View logic
 		local detected = {}
 		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+20)) do
-			if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
-				if bots.is_in_bot_view(self, obj) then
-					if obj:get_luaentity() and obj:get_luaentity().bot_name then
-						if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
-							table.insert(detected, obj)
-							--print("Added "..Name(obj))
+			if Name(obj) then
+				if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
+					if bots.is_in_bot_view(self, obj) then
+						if obj:get_luaentity() and obj:get_luaentity().bot_name then
+							if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
+								table.insert(detected, obj)
+								--print("Added "..Name(obj))
+							end
 						end
 					end
-				end
-			elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
-				if bots.is_in_bot_view(self, obj) then
-					if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
-						table.insert(detected, obj)
+				elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
+					if bots.is_in_bot_view(self, obj) then
+						if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
+							table.insert(detected, obj)
+						end
 					end
 				end
 			end
