@@ -12,13 +12,16 @@ local function on_step(self, dtime, mr)
 		if collisions.type == "object" then
 			local obj = collisions.object
 			if type(self.owner) ~= "userdata" then -- avoid crash from this
+				self.object:remove()
 				return
 			end
-			local ObjectTeam = bs.get_player_team_css(collisions.object)
-			if not (ObjectTeam == bots.data[Name(self.owner)].team) then
-				collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
+			if Name(obj) ~= Name(self.owner) then
+				local ObjectTeam = bs.get_player_team_css(collisions.object)
+				if not (ObjectTeam == bots.data[Name(self.owner)].team) then
+					collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
+				end
+				self.object:remove()
 			end
-			self.object:remove()
 		elseif collisions.type == "node" then
 			minetest.add_particle({
 				pos = self.object:get_pos(),
