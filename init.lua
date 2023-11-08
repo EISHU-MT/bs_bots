@@ -151,6 +151,7 @@ dofile(bots.modpath.."/chat.lua")
 dofile(bots.modpath.."/match_engine_v2.lua")
 dofile(bots.modpath.."/shoot_queue.lua")
 dofile(bots.modpath.."/server_controller.lua")
+dofile(bots.modpath.."/dead_body.lua")
 
 function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
