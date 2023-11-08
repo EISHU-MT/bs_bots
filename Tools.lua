@@ -40,18 +40,18 @@ function bots.is_in_bot_view(self, obj)
 								break
 							end
 						end
-					elseif ray.type == "object" then
-						if ray.ref then
-							if ray.ref:is_player() and bs.get_player_team_css(ray.ref) == bots.data[self.bot_name].team then
-								has_error = true
-								break
-							elseif ray.ref:get_luaentity() and ray.ref:get_luaentity().bot_name then
-								if bots.data[self.bot_name].team == bots.data[ray.ref:get_luaentity().bot_name].team then
-									has_error = true
-									break
-								end
-							end
-						end
+					--elseif ray.type == "object" then
+					--	if ray.ref then
+					--		if ray.ref:is_player() and bs.get_player_team_css(ray.ref) == bots.data[self.bot_name].team then
+					--			has_error = true
+					--			break
+					--		elseif ray.ref:get_luaentity() and ray.ref:get_luaentity().bot_name then
+					--			if bots.data[self.bot_name].team == bots.data[ray.ref:get_luaentity().bot_name].team then
+					--				has_error = true
+					--				break
+					--			end
+					--		end
+					--	end
 					end
 					ray = raycast:next()
 				end
