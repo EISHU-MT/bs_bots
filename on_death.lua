@@ -29,7 +29,14 @@ return function(self, killer)
 		end
 	end
 	
-	
+	local player_look = self.object:get_yaw()
+	local obj = core.add_entity(self.object:get_pos(), "bs_bots:__dead_body")
+	obj:set_yaw(player_look)
+	obj:set_properties({
+		textures = {"character.png^player_"..bots.data[self.bot_name].team.."_overlay.png"}
+	})
+	obj:set_animation({x = 162, y = 166}, 15, 0)
+	obj:set_acceleration(vector.new(0,-9.81,0))
 	
 	local hand_item = ItemStack(killer_weapon)
 	local desc = hand_item:get_definition()
