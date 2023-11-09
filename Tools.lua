@@ -26,11 +26,6 @@ function bots.is_in_bot_view(self, obj)
 	if bots.data[self.bot_name].team ~= team then
 		local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
 		local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
-		
-		if vector.distance(self_pos, enemy_pos) <= 2 then
-			return true
-		end
-		
 		local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
 		local ray = raycast:next()
 		local has_error = false
@@ -54,6 +49,8 @@ function bots.is_in_bot_view(self, obj)
 		end
 			
 		if has_error then return false else return true end
+	else
+		return false
 	end
 end
 
