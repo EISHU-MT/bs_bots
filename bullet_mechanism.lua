@@ -1,6 +1,6 @@
 -- OBJ
 local function on_step(self, dtime, mr)
-	if mr.collides ~= true and self.timer >= 10 then
+	if mr.collides ~= true and self.timer >= 2 then
 		self.object:remove()
 		return
 	end
@@ -37,7 +37,7 @@ local function on_step(self, dtime, mr)
 			self.object:remove()
 			return
 		end
-		if self.timer >= 10 then
+		if self.timer >= 2 then
 			self.object:remove()
 		end
 	end
