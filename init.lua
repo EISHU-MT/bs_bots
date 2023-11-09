@@ -56,7 +56,7 @@ bots = {
 		},
 		on_activate = mobkit.actfunc,
 		get_staticdata = mobkit.statfunc,
-		on_step = mobkit.stepfunc,
+		on_step = function(self, dtime, mv) mobkit.stepfunc(self, dtime, mv) bots.co_logic(self, mv) end,
 		view_range = 20,
 		jump_height = 1,
 		max_speed = 2,
@@ -94,12 +94,16 @@ bots = {
 		on_step = function(self)
 			local name = self.holder or Name(self.object:get_attach() or "")
 			if name then
-				self.object:set_properties({textures = {bots.in_hand_weapon[holder] or "wield3d:hand"}})
+				self.object:set_properties({textures = {bots.in_hand_weapon[name] or config.DefaultStartWeapon.weapon}})
 			end
 		end,
 	},
 	to_2d = function(pos)
-		return {x = pos.x, y = pos.z}
+		if pos then
+			return {x = pos.x, y = pos.z}
+		else
+			return {x=0,y=0}
+		end
 	end,
 	restart_bots = function() -- Only in Prepare time! This just restarts the bots objects.
 		for name, data in pairs(bots.data) do
@@ -152,6 +156,7 @@ dofile(bots.modpath.."/match_engine_v2.lua")
 dofile(bots.modpath.."/shoot_queue.lua")
 dofile(bots.modpath.."/server_controller.lua")
 dofile(bots.modpath.."/dead_body.lua")
+dofile(bots.modpath.."/co_logic.lua")
 
 function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
