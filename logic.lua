@@ -101,10 +101,10 @@ return function(self)
 		end
 		-- In Bot View logic
 		local detected = {}
-		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+20)) do
-			if Name(obj) then
+		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+50)) do
+			if Name(obj) and Name(obj) ~= self.bot_name then
 				if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
-					if bots.is_in_bot_view(self, obj) then
+					if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
 						if obj:get_luaentity() and obj:get_luaentity().bot_name then
 							if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
 								table.insert(detected, obj)
@@ -113,7 +113,7 @@ return function(self)
 						end
 					end
 				elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
-					if bots.is_in_bot_view(self, obj) then
+					if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
 						if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
 							table.insert(detected, obj)
 						end
@@ -153,6 +153,16 @@ return function(self)
 			if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
 				if not bots.queue_shot[name] then
 					bots.in_hand_weapon[self.bot_name] = to_use
+					
+					local from = bots.to_2d(self.object:get_pos())
+					local to = bots.to_2d(obj:get_pos())
+					local offset_to = {
+						x = to.x - from.x,
+						y = to.y - from.y
+					}
+					
+					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+					
 					local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
 					local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
 					local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
@@ -166,12 +176,11 @@ return function(self)
 					if bots.data[name].wield_item_obj then
 						bots.data[name].wield_item_obj:set_properties({
 							textures = {itemstack:get_name()},
-							visual_size = {x=0.25, y=0.25},
+								visual_size = {x=0.25, y=0.25},
 						})
 					end
+					self.object:set_yaw(dir)
 				end
-			else
-				--print()
 			end
 		end
 	else
