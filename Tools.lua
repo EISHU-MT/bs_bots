@@ -36,7 +36,6 @@ function bots.is_in_bot_view(self, obj)
 					if ray.type == "node" then
 						local nodename = minetest.get_node(ray.under).name
 						if core.registered_items[nodename] then
-							print(core.registered_items[nodename].walkable)
 							if core.registered_items[nodename].walkable then
 								has_error = true
 								break
