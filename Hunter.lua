@@ -45,6 +45,7 @@ function bots.Hunt(self, enemy, prty)
 		
 		if not mobkit.is_alive(enemy) then return true end
 		
+		if bs.get_player_team_css(enemy) == "" then return true end
 		
 		if mobkit.is_queue_empty_low(self) and self.isonground then
 			
