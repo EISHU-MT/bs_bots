@@ -29,13 +29,15 @@ function bots.is_in_bot_view(self, obj)
 		local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
 		local ray = raycast:next()
 		local has_error = false
+		local from_first = true
 		if ray then
 			while ray do
 				if ray then
 					if ray.type == "node" then
 						local nodename = minetest.get_node(ray.under).name
 						if core.registered_items[nodename] then
-							if not core.registered_items[nodename].walkable then
+							print(core.registered_items[nodename].walkable)
+							if core.registered_items[nodename].walkable then
 								has_error = true
 								break
 							end
@@ -44,11 +46,19 @@ function bots.is_in_bot_view(self, obj)
 					ray = raycast:next()
 				end
 			end
+			from_first = false
 		else
-			return false
+			return false -- If there wanst raycast, then return error.
 		end
-			
-		if has_error then return false else return true end
+		if has_error then
+			return false
+		else
+			if from_first then
+				return false
+			else
+				return true
+			end
+		end
 	else
 		return false
 	end
