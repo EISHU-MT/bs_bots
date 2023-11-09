@@ -19,7 +19,6 @@ function bots.co_logic(self, mv)
 								visual_size = {x=0.25, y=0.25},
 							})
 						end
-						core.chat_send_all("PUNCHING "..self.bot_name.." TEAM: "..player_team.." / "..bots.data[self.bot_name].team)
 						
 						local from = bots.to_2d(self.object:get_pos())
 						local to = bots.to_2d(obj:get_pos())
@@ -34,5 +33,10 @@ function bots.co_logic(self, mv)
 				end
 			end
 		end
+	end
+	if bots.path_finder_running[self.bot_name] then
+		bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].walk, bots.bots_animations[self.bot_name].anispeed, 0)
+	else
+		bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].stand, bots.bots_animations[self.bot_name].anispeed, 0)
 	end
 end
