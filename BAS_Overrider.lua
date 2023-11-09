@@ -15,11 +15,11 @@ function bs.get_player_team_css(to_index)
 		elseif bs_old.Player(to_index) then
 			return bs_old.get_player_team_css(to_index)
 		end
-	else
+	elseif type(to_index) == "userdata" then
 		local lua_entity = to_index:get_luaentity()
 		if lua_entity then
 			if lua_entity.bot_name then
-				if bots.data[to_index] then
+				if bots.data[lua_entity.bot_name] then
 					return bots.data[lua_entity.bot_name].team or ""
 				end
 			end
