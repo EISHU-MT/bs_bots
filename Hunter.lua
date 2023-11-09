@@ -43,9 +43,19 @@ function bots.Hunt(self, enemy, prty)
 		end
 		local dist = vector.distance(pos,opos)
 		
-		if not mobkit.is_alive(enemy) then return true end
+		if mobkit.is_alive(enemy) == "" then
+			bots.stop_hunter[self.bot_name] = nil
+			bots.hunting[self.bot_name] = nil
+			bots.CancelPathTo[self.bot_name] = nil
+			return true
+		end
 		
-		if bs.get_player_team_css(enemy) == "" then return true end
+		if bs.get_player_team_css(enemy) == "" then
+			bots.stop_hunter[self.bot_name] = nil
+			bots.hunting[self.bot_name] = nil
+			bots.CancelPathTo[self.bot_name] = nil
+			return true
+		end
 		
 		if mobkit.is_queue_empty_low(self) and self.isonground then
 			
