@@ -45,18 +45,13 @@ function bots.is_in_bot_view(self, obj)
 					ray = raycast:next()
 				end
 			end
-			from_first = false
 		else
 			return false -- If there wanst raycast, then return error.
 		end
 		if has_error then
 			return false
 		else
-			if from_first then
-				return false
-			else
-				return true
-			end
+			return true
 		end
 	else
 		return false
