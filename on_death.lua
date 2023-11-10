@@ -29,6 +29,8 @@ return function(self, killer)
 		end
 	end
 	
+	RunCallbacks(BotsCallbacks.RegisteredOnKillBot, self, killer)
+	
 	local player_look = self.object:get_yaw()
 	local obj = core.add_entity(self.object:get_pos(), "bs_bots:__dead_body")
 	obj:set_yaw(player_look)
