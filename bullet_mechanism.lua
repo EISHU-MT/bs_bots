@@ -1,6 +1,6 @@
 -- OBJ
 local function on_step(self, dtime, mr)
-	if mr.collides ~= true and self.timer >= 2 then
+	if self.timer >= 1 then
 		self.object:remove()
 		return
 	end
@@ -79,6 +79,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 	local direction = vector.direction(pos, to_pos)
 	local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
 	local svertical = math.asin(direction.y) - (math.pi/2)
+	combined_velocity = combined_velocity * 3
 	if pos and dir and yaw then
 		minetest.sound_play(shoot_sound, {pos = pos, gain = 0.5, max_hear_distance = 60})
 		pos.y = pos.y + 1.45
@@ -102,7 +103,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 			ent.damage = dmg or {fleshy = bots.default_bullet_damage}
 			
 			obj:set_pos(pos)
-			obj:set_velocity({x=direction.x * combined_velocity * 2, y=direction.y * combined_velocity * 1.5, z=direction.z * combined_velocity * 2})
+			obj:set_velocity({x=direction.x * combined_velocity, y=direction.y * combined_velocity, z=direction.z * combined_velocity})
 			--obj:set_rotation({x=0,y=yaw / (math.pi/2),z=-direction.y})
 		end
 	end
