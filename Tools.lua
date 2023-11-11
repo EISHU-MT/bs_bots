@@ -36,7 +36,7 @@ function bots.is_in_bot_view(self, obj)
 					if ray.type == "node" then
 						local nodename = minetest.get_node(ray.under).name
 						if core.registered_items[nodename] then
-							if core.registered_items[nodename].walkable then
+							if core.registered_items[nodename].walkable ~= false then
 								has_error = true
 								break
 							end
@@ -45,8 +45,6 @@ function bots.is_in_bot_view(self, obj)
 					ray = raycast:next()
 				end
 			end
-		else
-			return false -- If there wanst raycast, then return error.
 		end
 		if has_error then
 			return false
