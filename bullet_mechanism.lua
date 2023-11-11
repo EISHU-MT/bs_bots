@@ -79,7 +79,6 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 	local direction = vector.direction(pos, to_pos)
 	local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
 	local svertical = math.asin(direction.y) - (math.pi/2)
-	combined_velocity = combined_velocity * 3
 	if pos and dir and yaw then
 		minetest.sound_play(shoot_sound, {pos = pos, gain = 0.5, max_hear_distance = 60})
 		pos.y = pos.y + 1.45
