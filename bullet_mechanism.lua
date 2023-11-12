@@ -70,6 +70,8 @@ local def = {
 
 core.register_entity("bs_bots:bullet", def)
 
+local bullets_cache = {}
+
 bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity, data, obj)
 	local to_pos = obj:get_pos()
 	local pos = data.object:get_pos()
@@ -103,6 +105,8 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 				ent.owner = data.object
 				ent.damage = dmg or {fleshy = bots.default_bullet_damage}
 				
+				bullets_cache[FormRandomString(4)] = {obj = obj, time = 2}
+				
 				obj:set_pos(pos)
 				obj:set_velocity({x=direction.x * combined_velocity, y=direction.y * combined_velocity, z=direction.z * combined_velocity})
 				--obj:set_rotation({x=0,y=yaw / (math.pi/2),z=-direction.y})
@@ -113,3 +117,25 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 		mobkit.hq_attack(data, mobkit.get_queue_priority(data)+1, obj)
 	end
 end
+
+local function on_step(dtime)
+	for id, data in pairs(bullets_cache) do
+		bullets_cache[id].time = bullets_cache[id].time - dtime
+		if bullets_cache[id].time <= 0 then
+			bullets_cache[id].obj:remove()
+			bullets_cache[id] = nil
+		end
+	end
+end
+
+core.register_globalstep(on_step)
+
+
+
+
+
+
+
+
+
+
