@@ -24,32 +24,34 @@ function bots.is_in_bot_view(self, obj)
 		team = bots.data[obj:get_luaentity().bot_name].team
 	end
 	if bots.data[self.bot_name].team ~= team then
-		local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
-		local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
-		local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
-		local ray = raycast:next()
-		local has_error = false
-		local from_first = true
-		if ray then
-			while ray do
-				if ray then
-					if ray.type == "node" then
-						local nodename = minetest.get_node(ray.under).name
-						if core.registered_items[nodename] then
-							if core.registered_items[nodename].walkable ~= false then
-								has_error = true
-								break
+		if mobkit.is_alive(obj) then
+			local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
+			local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
+			local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
+			local ray = raycast:next()
+			local has_error = false
+			local from_first = true
+			if ray then
+				while ray do
+					if ray then
+						if ray.type == "node" then
+							local nodename = minetest.get_node(ray.under).name
+							if core.registered_items[nodename] then
+								if core.registered_items[nodename].walkable ~= false then
+									has_error = true
+									break
+								end
 							end
 						end
+						ray = raycast:next()
 					end
-					ray = raycast:next()
 				end
 			end
-		end
-		if has_error then
-			return false
-		else
-			return true
+			if has_error then
+				return false
+			else
+				return true
+			end
 		end
 	else
 		return false
