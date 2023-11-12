@@ -29,14 +29,10 @@ function bots.co_logic(self, mv)
 						local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
 						
 						self.object:set_yaw(dir)
+						bots.queue_shot[self.bot_name] = 0.4
 					end
 				end
 			end
 		end
-	end
-	if bots.path_finder_running[self.bot_name] then
-		bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].walk, bots.bots_animations[self.bot_name].anispeed, 0)
-	else
-		bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].stand, bots.bots_animations[self.bot_name].anispeed, 0)
 	end
 end
