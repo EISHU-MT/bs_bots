@@ -158,6 +158,7 @@ dofile(bots.modpath.."/server_controller.lua")
 dofile(bots.modpath.."/dead_body.lua")
 dofile(bots.modpath.."/co_logic.lua")
 dofile(bots.modpath.."/callbacks.lua")
+dofile(bots.modpath.."/bots_respawner.lua")
 
 function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
