@@ -79,6 +79,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 	local direction = vector.direction(pos, to_pos)
 	local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
 	local svertical = math.asin(direction.y) - (math.pi/2)
+	combined_velocity = combined_velocity + 5
 	if vector.distance(pos, to_pos) > 3 then
 		if pos and dir and yaw then
 			minetest.sound_play(shoot_sound, {pos = pos, gain = 0.5, max_hear_distance = 60})
@@ -94,7 +95,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 				obj:set_properties({
 					textures = {"bullet2.png"},
 					visual = "sprite",
-					visual_size = {x=0.4, y=0.4},
+					visual_size = {x=0.1, y=0.1},
 					collisionbox = {-size, -size, -size, size, size, size},
 					glow = proj_glow,
 				})
