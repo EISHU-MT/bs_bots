@@ -92,9 +92,16 @@ bots = {
 		},
 		holder = nil,
 		on_step = function(self)
-			local name = self.holder or Name(self.object:get_attach() or "")
-			if name then
-				self.object:set_properties({textures = {bots.in_hand_weapon[name] or config.DefaultStartWeapon.weapon}})
+			local obj = self.object:get_attach()
+			if obj then
+				local name = Name(obj)
+				if name then
+					self.object:set_properties({textures = {bots.in_hand_weapon[name] or config.DefaultStartWeapon.weapon}})
+				else
+					self.object:remove()
+				end
+			else
+				self.object:remove()
 			end
 		end,
 	},
@@ -209,6 +216,12 @@ core.register_entity("bs_bots:nametag", {
 		makes_footstep_sound = false,
 		static_save = false,
 	},
+	on_step = function(self)
+		local attach = self.object:get_attach()
+		if not attach then
+			self.object:remove()
+		end
+	end
 })
 
 function bots.add_nametag(obj, team, name)
