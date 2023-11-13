@@ -24,3 +24,18 @@ function mobkit.get_stand_pos(thing)
 		return vector.zero()
 	end
 end
+
+function mobkit.lq_turn2pos(self,tpos)
+	local func=function(self)
+		local pos = self.object:get_pos()
+		if pos and tpos then
+			return mobkit.turn2yaw(self,
+				minetest.dir_to_yaw(vector.direction(pos,tpos)))
+		else
+			return false
+		end
+	end
+	mobkit.queue_low(self,func)
+end
+
+
