@@ -33,10 +33,10 @@ function bots.chat(self, typo, txt)
 			local chance = ToSay[typo][c][2]
 			local text = ToSay[typo][c][1]
 			if math.random(1, 2) == chance then
-				bs.send_to_team(team, "<"..self.bot_name.."> "..string.format(ToSay[typo][c][1], txt))
+				bs.send_to_team(team, "### <"..self.bot_name.."> "..string.format(ToSay[typo][c][1], txt))
 			end
 		else
-			bs.send_to_team(team, "<"..self.bot_name.."> "..string.format(ToSay[typo][c], txt))
+			bs.send_to_team(team, "### <"..self.bot_name.."> "..string.format(ToSay[typo][c], txt))
 		end
 	end
 end
