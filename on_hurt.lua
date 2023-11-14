@@ -19,5 +19,5 @@ return function(self, puncher, _, _, _, damage)
 		end
 		mobkit.hurt(self, damage)
 	end
-	
+	mobkit.clear_queue_high(self)
 end
