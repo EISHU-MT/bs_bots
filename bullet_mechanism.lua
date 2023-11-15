@@ -18,7 +18,25 @@ local function on_step(self, dtime, mr)
 			if Name(obj) and Name(self.owner) and Name(obj) ~= Name(self.owner) then
 				local ObjectTeam = bs.get_player_team_css(collisions.object)
 				if ObjectTeam ~= bots.data[Name(self.owner)].team then
-					collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
+					if PlayerArmor and collisions.object:is_player() then
+						local enemy_pos = collisions.object:get_pos()
+						local bullet_pos = self.object:get_pos()
+						if enemy_pos and bullet_pos then
+							local upper_enemy_pos = vector.add(enemy_pos, vector.new(0,1.05,0))
+							if bullet_pos.y >= upper_enemy_pos.y then
+								for name, dmg in pairs(self.damage) do
+									self.damage[name] = dmg + 20 - PlayerArmor.HeadHPDifference[Name(collisions.object)]
+								end
+							else
+								for name, dmg in pairs(self.damage) do
+									self.damage[name] = dmg - PlayerArmor.DifferenceOfHP[Name(collisions.object)]
+								end
+							end
+						end
+						collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
+					else
+						collisions.object:punch(self.owner, nil, {damage_groups = self.damage}, nil)
+					end
 				end
 				self.object:remove()
 			end
@@ -78,6 +96,10 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 	local entity = data.object:get_luaentity()
 	local dir = bots.calc_dir(data.object:get_rotation())
 	local yaw = data.object:get_yaw()
+	local random = math.random(0, 1)
+	if random == 1 then
+		to_pos = vector.subtract(to_pos, vector.new(0,1,0))
+	end
 	local direction = vector.direction(pos, to_pos)
 	local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
 	local svertical = math.asin(direction.y) - (math.pi/2)
