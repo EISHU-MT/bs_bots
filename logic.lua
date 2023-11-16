@@ -76,7 +76,8 @@ local C = CountTable
 return function(self)
 	mobkit.vitals(self)
 	if self.isinliquid then
-		mobkit.hq_liquid_recovery(self, mobkit.get_queue_priority(self))
+		mobkit.hq_liquid_recovery(self, mobkit.get_queue_priority(self)+1)
+		return
 	end
 	if bs_match.match_is_started then
 		loaded_bots = {}
