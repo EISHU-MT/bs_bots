@@ -5,13 +5,15 @@ return function(self, killer)
 	local killer_weapon = ""
 	local image = "hand_kill.png"
 	if killer:is_player() then
-		killer_weapon = killer:get_wielded_item():get_name()
-		bank.player_add_value(killer, 10)
-		if PlayerKills[Name(killer)] and PlayerKills[Name(killer)].kills then
-			PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
+		if killer_team ~= bots.data[self.bot_name].team or config.PvpEngine.FriendShoot then
+			killer_weapon = killer:get_wielded_item():get_name()
+			bank.player_add_value(killer, 10)
+			if PlayerKills[Name(killer)] and PlayerKills[Name(killer)].kills then
+				PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
+			end
+			score.add_score_to(killer, 10)
+			stats.kills.add_to(Name(killer))
 		end
-		score.add_score_to(killer, 10)
-		stats.kills.add_to(Name(killer))
 	else
 		local bot_info = killer:get_luaentity()
 		if bot_info then
