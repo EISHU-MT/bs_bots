@@ -43,7 +43,7 @@ function bots.Hunt(self, enemy, prty)
 		end
 		local dist = vector.distance(pos,opos)
 		
-		if mobkit.is_alive(enemy) == "" then
+		if not mobkit.is_alive(enemy) then
 			bots.stop_hunter[self.bot_name] = nil
 			bots.hunting[self.bot_name] = nil
 			bots.CancelPathTo[self.bot_name] = nil
