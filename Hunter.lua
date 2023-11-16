@@ -64,8 +64,6 @@ function bots.Hunt(self, enemy, prty)
 			if p and CountTable(p) > 0 then
 				bots.active_path_to(self, p, 1.5)
 				return
-			else
-				mobkit.goto_next_waypoint(self,opos)
 			end
 			
 			--if GetObjectsInBotView(self, true)[1] then
