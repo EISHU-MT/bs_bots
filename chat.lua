@@ -24,6 +24,11 @@ ToSay = {
 	send_on_killed_teammate = {
 		{"Lets pay attention in our ways before we get killed", 2} -- {TEXT, CHANCE}
 	},
+	got_enemy = {
+		"I got %s",
+		"Got %s",
+		"%s was killed"
+	}
 }
 function bots.chat(self, typo, txt)
 	if ToSay[typo] then
