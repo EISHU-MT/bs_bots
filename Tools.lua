@@ -10,7 +10,6 @@ function bots.line_of_sight(pos1, pos2)
 				end
 			end
 			thing = ray:next()
-			print(dump(thing))
 		end
 	end
 	return true
@@ -58,16 +57,32 @@ function bots.is_in_bot_view(self, obj)
 	end
 end
 
+function bots.find_near_enemy(self)
+	local self_pos = mobkit.get_stand_pos(self)
+	local self_team = bots.data[self.bot_name].team
+	if self_pos then
+		local enemies = {}
+		for _, obj in pairs(core.get_objects_inside_radius(self_pos, self.view_range+50)) do
+			local team = bs.get_player_team_css(obj)
+			if Name(obj) and (team ~= "" or team ~= nil) then
+				if team ~= self_team then
+					return obj
+				end
+			end
+		end
+	end
+end
+
 local max_lengh = 160
---function bots.find_path_to(start_pos, end_pos, len)
---	local path = minetest.find_path(CheckPos(start_pos), CheckPos(end_pos), 500, 1, 5, "A*_noprefetch")
---	return path
---end
+function bots.find_path_to(start_pos, end_pos, len)
+	local path = minetest.find_path(CheckPos(start_pos), CheckPos(end_pos), 500, 1, 5, "A*_noprefetch")
+	return path
+end
 
 function bots.is_pos1_not_near_from_pos2(p1, p2)
 	return vector.distance(p1, p2) >= 3
 end
-
+--[[
 -- Lightweight Pathfinder
 
 local random = math.random
@@ -225,3 +240,4 @@ function bots.find_path_to(pos, tpos, width)
 
     return path, raw
 end
+--]]
