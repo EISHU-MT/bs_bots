@@ -82,7 +82,7 @@ local def = {
 		static_save = false,
 	},
 	owner = {},
-	damage = 5, -- Default
+	damage = {fleshy = 5}, -- Default
 	on_step = on_step
 }
 
