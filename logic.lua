@@ -89,14 +89,14 @@ return function(self)
 					local selected = team_enemies[1]
 					if selected and bs.team[selected].state == "alive" then
 						local enemies = bs.get_team_players(selected)
-						bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self))
+						bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self)+1)
 					end
 				end
 			else
 				local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
 				if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
 					local enemies = bs.get_team_players(team_enemy)
-					bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self))
+					bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self)+1)
 				end
 			end
 		end
