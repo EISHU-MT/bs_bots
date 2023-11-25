@@ -58,6 +58,7 @@ function bots.is_in_bot_view(self, obj)
 end
 
 function bots.find_near_enemy(self)
+	if not self then return nil end
 	local self_pos = mobkit.get_stand_pos(self)
 	local self_team = bots.data[self.bot_name].team
 	if self_pos then
