@@ -86,10 +86,7 @@ function bots.MovementFunction(self)
 				bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - 1
 			end
 			
-			local will_jump = false
-			if bots.is_there_y_difference(path[path_iter + 1], pos) then
-				--will_jump = true
-			end
+
 			
 			local turn_rate = self.turn_rate or 8
 			if vector.distance(pos, tpos) < width + 2 then
