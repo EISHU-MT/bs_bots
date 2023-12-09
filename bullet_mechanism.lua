@@ -135,8 +135,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 			end
 		end
 	else
-		--mobkit.hq_hunt(data, mobkit.get_queue_priority(data)+1, obj)
-		mobkit.hq_attack(data, mobkit.get_queue_priority(data)+1, obj)
+		bots.Hunt(self, obj)
 	end
 end
 

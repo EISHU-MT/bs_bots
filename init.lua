@@ -4,6 +4,9 @@
 	This might make conflict with bs_tweaks if not good configuration.
 	This will override the entire BA engine for compatibility
 --]]
+
+dofile(core.get_modpath(core.get_current_modname()).."/EntityEngine/init.lua")
+
 local switcher = false
 bots = {
 	dead_bots = {},
@@ -54,14 +57,14 @@ bots = {
 			shaded = true,
 			show_on_minimap = true,
 		},
-		on_activate = mobkit.actfunc,
-		get_staticdata = mobkit.statfunc,
-		on_step = function(self, dtime, mv) mobkit.stepfunc(self, dtime, mv) bots.co_logic(self, mv) end,
+		on_activate = BsEntities.OnActFunction,
+		on_step = function(self, dtime, mv) BsEntities.OnSelfFunction(self, dtime, mv) bots.co_logic(self, mv) end,
 		view_range = 20,
 		jump_height = 1,
 		max_speed = 2,
 		attack={range=4, damage_groups = {fleshy = 10}},
 		armor_groups = {fleshy = 100, immortal = 0},
+		totaltime = 0,
 	},
 	bots_animations = {
 		--[[Carl = { -- Animations
@@ -166,7 +169,6 @@ dofile(bots.modpath.."/dead_body.lua")
 dofile(bots.modpath.."/co_logic.lua")
 dofile(bots.modpath.."/callbacks.lua")
 dofile(bots.modpath.."/bots_respawner.lua")
-dofile(bots.modpath.."/mobkit_overrider.lua")
 
 function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
@@ -192,11 +194,16 @@ function bots.register_bot(def)
 			attack = {range = def.animations.mine, speed = def.animations.speed, loop = true},
 			stand = {range = def.animations.stand, speed = def.animations.speed, loop = true}
 		}
+		bot_body_data.hunter = bots.GetHuntFunction
+		bot_body_data.MovementAct = bots.MovementFunction
 		bot_body_data.logic = Logic
 		bot_body_data.on_punch = OnHurt
 		bot_body_data.on_death = OnDeath
+		bot_body_data.SubMovementsQueue = {}
+		bot_body_data.__time = 0
 		core.register_entity("bs_bots:"..def.name, bot_body_data)
 		bots.in_hand_weapon[def.name] = "rangedweapons:glock17"
+		bots.path_to[def.name] = {}
 	end
 end
 

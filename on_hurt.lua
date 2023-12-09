@@ -17,7 +17,5 @@ return function(self, puncher, _, _, _, damage)
 		if puncher_team == bots.data[self.bot_name].team then
 			bots.chat(self, "send_warning_to_teammate", Name(puncher))
 		end
-		mobkit.hurt(self, damage)
 	end
-	mobkit.clear_queue_high(self)
 end

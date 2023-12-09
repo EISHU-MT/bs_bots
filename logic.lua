@@ -74,29 +74,24 @@ end
 local C = CountTable
 
 return function(self)
-	mobkit.vitals(self)
-	if self.isinliquid then
-		mobkit.hq_liquid_recovery(self, mobkit.get_queue_priority(self)+1)
-		return
-	end
 	if bs_match.match_is_started then
 		loaded_bots = {}
 		-- Hunt logic
-		if (not self.isinliquid) and self.isonground then
+		if self.isonground then
 			if C(maps.current_map.teams) > 2 then
 				local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
 				if C(team_enemies) >= 1 then
 					local selected = team_enemies[1]
 					if selected and bs.team[selected].state == "alive" then
 						local enemies = bs.get_team_players(selected)
-						bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self)+1)
+						bots.Hunt(self, enemies[math.random(1, C(enemies))])
 					end
 				end
 			else
 				local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
 				if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
 					local enemies = bs.get_team_players(team_enemy)
-					bots.Hunt(self, enemies[math.random(1, C(enemies))], mobkit.get_queue_priority(self)+1)
+					bots.Hunt(self, enemies[math.random(1, C(enemies))])
 				end
 			end
 		end
@@ -186,6 +181,19 @@ return function(self)
 		end
 	else
 		bbp.WhileOnPrepareTime(self)
+		bots.CancelPathTo[self.bot_name] = true
+		local bot_pos = self.object:get_pos()
+		if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
+			self.object:set_velocity(vector.new(0,0,0))
+		end
+		local from = bots.to_2d(self.object:get_pos())
+		local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
+		local offset_to = {
+			x = to.x - from.x,
+			y = to.y - from.y
+		}
+		local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+		self.object:set_yaw(dir)
 	end
 end
 

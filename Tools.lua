@@ -23,13 +23,12 @@ function bots.is_in_bot_view(self, obj)
 		team = bots.data[obj:get_luaentity().bot_name].team
 	end
 	if bots.data[self.bot_name].team ~= team then
-		if mobkit.is_alive(obj) then
-			local enemy_pos = vector.add(CheckPos(mobkit.get_stand_pos(obj)), vector.new(0,1,0))
-			local self_pos = vector.add(CheckPos(mobkit.get_stand_pos(self.object)), vector.new(0,1,0))
+		if BsEntities.IsEntityAlive(obj) then
+			local enemy_pos = vector.add(CheckPos(BsEntities.GetStandPos(obj)), vector.new(0,1,0))
+			local self_pos = vector.add(CheckPos(BsEntities.GetStandPos(self.object)), vector.new(0,1,0))
 			local raycast = minetest.raycast(self_pos, enemy_pos, false, false)
 			local ray = raycast:next()
 			local has_error = false
-			local from_first = true
 			if ray then
 				while ray do
 					if ray then
@@ -59,7 +58,7 @@ end
 
 function bots.find_near_enemy(self)
 	if not self then return nil end
-	local self_pos = mobkit.get_stand_pos(self)
+	local self_pos = BsEntities.GetStandPos(self)
 	local self_team = bots.data[self.bot_name].team
 	if self_pos then
 		local enemies = {}

@@ -1,8 +1,7 @@
 --  MOVEMENTS
-bots.path_finder = {}
+bots.path_to = {}
 bots.path_finder_running = {}
 bots.CancelPathTo = {}
-bots.renew_bot_path = {}
 
 local random = math.random
 local abs = math.abs
@@ -31,92 +30,92 @@ function bots.is_there_y_difference(pos1, pos2)
 	return pos1.y ~= pos2.y
 end
 
-function bots.active_path_to(self, path, speed_factor) -- To object will be always a enemy.
-	local anim = "walk"
-	if not path then core.log("error", "Attempt of crash blocked!: Tried to request movement without paths.") return end
-	local timer = #path
-	-- We should clear other jobs about movements to continue
-	if bots.path_finder_running[self.bot_name] then -- There should need a old-path clear to be the new-path
-		if mobkit.timer(self, 3) then
-			bots.renew_bot_path[self.bot_name] = path
-			core.log("action", "Attempt to do add a new func in LL queue, just replaced the path and not added function.")
-		end
+function bots.assign_path_to(self, path, speed)
+	if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
+		path = bots.find_path_to(CheckPos(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
+	elseif (not (vector.distance(path[1], self.object:get_pos()) > 1)) and bots.path_to[self.bot_name].path then
 		return
 	end
-	local func = function(self)
-		if bots.renew_bot_path[self.bot_name] then
-			path = table.copy(bots.renew_bot_path[self.bot_name])
-			bots.renew_bot_path[self.bot_name] = nil
-			core.log("action", "Received new path from active_path_to.")
-		end
-		if #path <= 1 then
-			bots.path_finder_running[self.bot_name] = nil
-			mobkit.animate(self, "stand")
-			return true
-		end
-		if bots.CancelPathTo[self.bot_name] then
-			bots.CancelPathTo[self.bot_name] = nil
-			mobkit.animate(self, "stand")
-			return true
-		end
-		local speed = speed_factor or 1
-		local path_iter = 1
-		local width = ceil(hitbox(self)[4])
-		if #path >= width then
-			path_iter = width
-		end
-		local pos = mobkit.get_stand_pos(self)
-		local tpos = path[path_iter]
-		local dir = vector.direction(pos, tpos)
-		local total_dist = vec_dist(pos, path[#path])
-		if total_dist <= width + 0.5 then
-			bots.path_finder_running[self.bot_name] = nil
-			mobkit.animate(self, "stand")
-			return true
-		end
-		if not self.isonground then
-			speed = speed * 0.5
-		end
-		if vec_dist(pos, tpos) <= width + 0.5 or (path[path_iter + 1] and vec_dist(pos, path[path_iter + 1]) <= width + 0.5) then
-			table.remove(path, 1)
-			timer = timer - 1
-		end
-		
-		local will_jump = false
-		if bots.is_there_y_difference(path[path_iter + 1], pos) then
-			will_jump = true
-		end
-		
-		local turn_rate = self.turn_rate or 8
-		if vector.distance(pos, tpos) < width + 2 then
-			turn_rate = turn_rate + 2
-		end
-		timer = timer - self.dtime
-		if timer <= 0 then
-			bots.path_finder_running[self.bot_name] = nil
-			mobkit.animate(self, "stand")
-			return true
-		end
-		
-		mobkit.turn2yaw(self, minetest.dir_to_yaw(dir), turn_rate)
-		mobkit.go_forward_horizontal(self, self.max_speed * speed + 0.1)
-		if will_jump then
-			mobkit.lq_freejump(self, 1)
-		end
-		mobkit.animate(self, anim)
-		bots.path_finder_running[self.bot_name] = true
-
-	end
-	mobkit.queue_low(self, func)
+	bots.path_to[self.bot_name].path = path
+	bots.path_to[self.bot_name].speed = speed
+	bots.path_to[self.bot_name].timer = #path
 end
 
+local true_var = true
 
-
-
-
-
-
-
-
-
-
+function bots.MovementFunction(self)
+	if bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
+		if true_var then --BsEntities.IsQueueEmpty(self) -- might fix soon
+			local path = bots.path_to[self.bot_name].path
+			if #path <= 1 then
+				bots.path_finder_running[self.bot_name] = false
+				bots.path_to[self.bot_name] = {}
+				bots.CancelPathTo[self.bot_name] = nil
+				BsEntities.AnimateEntity(self, "stand")
+				return
+			end
+			if bots.CancelPathTo[self.bot_name] then
+				bots.CancelPathTo[self.bot_name] = nil
+				bots.path_finder_running[self.bot_name] = false
+				bots.path_to[self.bot_name] = {}
+				BsEntities.AnimateEntity(self, "stand")
+				return
+			end
+			local speed = bots.path_to[self.bot_name].speed or 1
+			local path_iter = bots.path_to[self.bot_name].timer
+			local width = ceil(hitbox(self)[4])
+			if #path >= width then
+				path_iter = width
+			end
+			local pos = BsEntities.GetStandPos(self)
+			local tpos = path[path_iter]
+			local dir = vector.direction(pos, tpos)
+			local total_dist = vec_dist(pos, path[#path])
+			if total_dist <= width + 0.5 then
+				bots.CancelPathTo[self.bot_name] = nil
+				bots.path_finder_running[self.bot_name] = false
+				bots.path_to[self.bot_name] = {}
+				BsEntities.AnimateEntity(self, "stand")
+				return
+			end
+			if not self.isonground then
+				speed = speed * 0.5
+			end
+			if vec_dist(pos, tpos) <= width + 0.5 or (path[path_iter + 1] and vec_dist(pos, path[path_iter + 1]) <= width + 0.5) then
+				table.remove(path, 1)
+				bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - 1
+			end
+			
+			local will_jump = false
+			if bots.is_there_y_difference(path[path_iter + 1], pos) then
+				--will_jump = true
+			end
+			
+			local turn_rate = self.turn_rate or 8
+			if vector.distance(pos, tpos) < width + 2 then
+				turn_rate = turn_rate + 2
+			end
+			bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - self.dtime
+			if bots.path_to[self.bot_name].timer <= 0 then
+				bots.CancelPathTo[self.bot_name] = nil
+				bots.path_finder_running[self.bot_name] = false
+				bots.path_to[self.bot_name] = {}
+				BsEntities.AnimateEntity(self, "stand")
+				return
+			end
+			
+			BsEntities.TurnToYaw(self, core.dir_to_yaw(dir), turn_rate)
+			BsEntities.AdvanceHorizontal(self, self.max_speed * speed + 0.1)
+			if will_jump then
+				BsEntities.QueueFreeJump(self)
+			end
+			BsEntities.AnimateEntity(self, "walk")
+			bots.path_finder_running[self.bot_name] = true
+			bots.path_to[self.bot_name].path = path
+			--print(path_iter)
+			--print(bots.path_to[self.bot_name].timer)
+		end
+	else
+		core.log("action", "Waiting a path for "..self.bot_name)
+	end
+end
