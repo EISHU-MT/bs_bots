@@ -12,7 +12,7 @@ if core.is_singleplayer() then
 					local is_enemy_team_loaded = true
 					for name, data in pairs(bots.data) do
 						if data.team ~= player_team then
-							if not data.object:get_yaw() then
+							if data.object and not data.object:get_yaw() then
 								is_enemy_team_loaded = false
 							end
 						end
