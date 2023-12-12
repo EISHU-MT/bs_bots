@@ -2,6 +2,7 @@
 bots.path_to = {}
 bots.path_finder_running = {}
 bots.CancelPathTo = {}
+bots.AbortPathMovementFor = {}
 
 local random = math.random
 local abs = math.abs
@@ -46,7 +47,7 @@ local true_var = true
 
 function bots.MovementFunction(self)
 	if bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
-		if true_var then --BsEntities.IsQueueEmpty(self) -- might fix soon
+		if not bots.AbortPathMovementFor[self.bot_name] then --BsEntities.IsQueueEmpty(self) -- might fix soon
 			local path = bots.path_to[self.bot_name].path
 			if #path <= 1 then
 				bots.path_finder_running[self.bot_name] = false
