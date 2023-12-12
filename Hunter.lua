@@ -6,9 +6,9 @@ bots.hunter_time = {}
 bots.stop_hunter = {}
 bots.hunter_timer = 0
 function bots.Hunt(self, enemy)
+	if not enemy then core.log("error", "Bug: No enemy to hunt, but bots.Hunt() is executed.") return end
+	if not self then core.log("error", "Bug: The bot that are used to hunt is not found!.") return end
 	if not bots.AbortPathMovementFor[self.bot_name] then
-		if not enemy then core.log("error", "Bug: No enemy to hunt, but bots.Hunt() is executed.") return end
-		if not self then core.log("error", "Bug: The bot that are used to hunt is not found!.") return end
 		if BsEntities.IsEntityAlive(enemy) then
 			if not bots.hunting[self.bot_name] or (bots.hunting[self.bot_name] and not BsEntities.IsEntityAlive(bots.hunting[self.bot_name])) then
 				bots.hunting[self.bot_name] = enemy
