@@ -32,6 +32,13 @@ function bots.co_logic(self, mv)
 						bots.queue_shot[self.bot_name] = 0.4
 					end
 				end
+			elseif collisions.type == "node" then
+				local pos = collisions.node_pos
+				local nodedata = minetest.get_node(pos)
+				local nodename = nodedata.name
+				if doors.registered_doors[nodename] then
+					doors.door_toggle(pos, nodedata)
+				end
 			end
 		end
 	end
