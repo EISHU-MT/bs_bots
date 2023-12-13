@@ -96,8 +96,8 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 	local entity = data.object:get_luaentity()
 	local dir = bots.calc_dir(data.object:get_rotation())
 	local yaw = data.object:get_yaw()
-	local random = math.random(0, 1)
-	if random == 1 then
+	local random = math.random(0, 23)
+	if random >= 10 then
 		to_pos = vector.subtract(to_pos, vector.new(0,1,0))
 	end
 	local direction = vector.direction(pos, to_pos)
