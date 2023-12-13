@@ -23,25 +23,31 @@ end
 function bots.GetHuntFunction(self)
 	if bots.hunting[self.bot_name] then
 		if BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
-			local enemy = bots.hunting[self.bot_name]
-			if bots.stop_hunter[self.bot_name] then
-				bots.stop_hunter[self.bot_name] = nil
+			if bs.get_player_team_css(bots.hunting[self.bot_name]) ~= "" then
+				local enemy = bots.hunting[self.bot_name]
+				if bots.stop_hunter[self.bot_name] then
+					bots.stop_hunter[self.bot_name] = nil
+					bots.hunting[self.bot_name] = nil
+				end
+				local pos = BsEntities.GetStandPos(self)
+				local opos = BsEntities.GetStandPos(enemy)
+				if not opos then
+					bots.stop_hunter[self.bot_name] = nil
+					bots.hunting[self.bot_name] = nil
+					return
+				end
+				local dist = vector.distance(pos, opos)
+				local path = bots.find_path_to(CheckPos(pos), CheckPos(opos))
+				if path then
+					bots.assign_path_to(self, path, 1.4)
+				end
+			else
 				bots.hunting[self.bot_name] = nil
-			end
-			local pos = BsEntities.GetStandPos(self)
-			local opos = BsEntities.GetStandPos(enemy)
-			if not opos then
 				bots.stop_hunter[self.bot_name] = nil
-				bots.hunting[self.bot_name] = nil
-				return
-			end
-			local dist = vector.distance(pos, opos)
-			local path = bots.find_path_to(CheckPos(pos), CheckPos(opos))
-			if path then
-				bots.assign_path_to(self, path, 1.4)
 			end
 		else
 			bots.hunting[self.bot_name] = nil
+			bots.stop_hunter[self.bot_name] = nil
 		end
 	end
 end
