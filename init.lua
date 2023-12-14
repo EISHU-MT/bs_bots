@@ -153,7 +153,7 @@ bots = {
 
 local OnDeath = dofile(bots.modpath.."/on_death.lua")
 local OnHurt = dofile(bots.modpath.."/on_hurt.lua")
-local Logic = dofile(bots.modpath.."/logic.lua")
+dofile(bots.modpath.."/logic.lua")
 
 dofile(bots.modpath.."/BAS_Overrider.lua")
 dofile(bots.modpath.."/Tools.lua")
@@ -197,7 +197,7 @@ function bots.register_bot(def)
 		}
 		bot_body_data.hunter = bots.GetHuntFunction
 		bot_body_data.MovementAct = bots.MovementFunction
-		bot_body_data.logic = Logic
+		bot_body_data.logic = Logic.OnStep
 		bot_body_data.on_punch = OnHurt
 		bot_body_data.on_death = OnDeath
 		bot_body_data.SubMovementsQueue = {}
