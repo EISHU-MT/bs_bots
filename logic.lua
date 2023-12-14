@@ -3,6 +3,7 @@
 --]]
 
 bbp = {}
+Logic = {}
 loaded_bots = {} -- Need to flush when a match starts
 
 bots.logics = {} -- a, b, c
@@ -71,9 +72,7 @@ function bbp.WhileOnPrepareTime(self)
 	end
 end
 
-local C = CountTable
-
-return function(self)
+function Logic.OnStep(self)
 	if bs_match.match_is_started then
 		loaded_bots = {}
 		-- Hunt logic
