@@ -72,6 +72,8 @@ function bbp.WhileOnPrepareTime(self)
 	end
 end
 
+local C = CountTable
+
 function Logic.OnStep(self)
 	if bs_match.match_is_started then
 		loaded_bots = {}
