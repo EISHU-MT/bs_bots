@@ -22,21 +22,43 @@ function bbp.WhileOnPrepareTime(self)
 			-- We should do buy weapons
 			local HardWeaponData = Shop.IdentifyWeapon(FavoriteWeapons.hard_weapon)
 			local HandWeaponData = Shop.IdentifyWeapon(FavoriteWeapons.hand_weapon)
-			local HardUsedWeapon = FavoriteWeapons.hard_weapon
-			local HandUsedWeapon = FavoriteWeapons.hand_weapon
+			local HardUsedWeapon = bots.data[self.bot_name].hard_weapon
+			local HandUsedWeapon = bots.data[self.bot_name].hand_weapon
 			if HardWeaponData and HandWeaponData then
 				-- Buy Hard Weapon
 				if HardWeaponData.item_name ~= HardUsedWeapon then
 					if HardWeaponData.price <= Money then
-						bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HardWeaponData.price
-						bots.favorite_weapons[LuaEntity.bot_name].hard_weapon = HardWeaponData.item_name
+						if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
+							local WeaponData = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hard_weapon)
+							if WeaponData and WeaponData.price <= HardWeaponData.price then
+								core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hard_weapon))
+								bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HardWeaponData.price
+								bots.data[self.bot_name].weapons.hard_weapon = HardWeaponData.item_name
+								core.log("action", "Bot "..BotName.." did buy: "..HardWeaponData.item_name)
+							end
+						else
+							bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HardWeaponData.price
+							bots.data[self.bot_name].weapons.hard_weapon = HardWeaponData.item_name
+							core.log("action", "Bot "..BotName.." did buy: "..HardWeaponData.item_name)
+						end
 					end
 				end
 				-- Buy Soft Weapon
 				if HandWeaponData.item_name ~= HandUsedWeapon then
 					if HandWeaponData.price <= Money then
-						bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
-						bots.favorite_weapons[LuaEntity.bot_name].hard_weapon = HandWeaponData.item_name
+						if bots.data[self.bot_name].weapons.hand_weapon ~= "" then
+							local WeaponData = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hand_weapon)
+							if WeaponData and WeaponData.price <= HandWeaponData.price then
+								core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hand_weapon))
+								bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
+								bots.data[self.bot_name].weapons.hand_weapon = HandWeaponData.item_name
+								core.log("action", "Bot "..BotName.." did buy: "..HandWeaponData.item_name)
+							end
+						else
+							bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
+							bots.data[self.bot_name].weapons.hard_weapon = HandWeaponData.item_name
+							core.log("action", "Bot "..BotName.." did buy: "..HandWeaponData.item_name)
+						end
 					end
 				end
 			else
