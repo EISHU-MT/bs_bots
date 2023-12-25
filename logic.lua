@@ -76,125 +76,135 @@ local C = CountTable
 
 function Logic.OnStep(self)
 	if bs_match.match_is_started then
-		loaded_bots = {}
-		-- Hunt logic
-		if self.isonground then
-			if C(maps.current_map.teams) > 2 then
-				local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
-				if C(team_enemies) >= 1 then
-					local selected = team_enemies[1]
-					if selected and bs.team[selected].state == "alive" then
-						local enemies = bs.get_team_players(selected)
-						bots.Hunt(self, enemies[math.random(1, C(enemies))])
-					end
-				end
-			else
-				local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
-				if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
-					local enemies = bs.get_team_players(team_enemy)
-					bots.Hunt(self, enemies[math.random(1, C(enemies))])
-				end
-			end
-		end
-		-- In Bot View logic
-		local detected = {}
-		for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+50)) do
-			if Name(obj) and Name(obj) ~= self.bot_name then
-				if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
-					if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
-						if obj:get_luaentity() and obj:get_luaentity().bot_name then
-							if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
-								table.insert(detected, obj)
-								--print("Added "..Name(obj))
+		if self then
+			loaded_bots = {}
+			-- Hunt logic
+			if self.isonground then
+				if C(maps.current_map.teams) > 2 then
+					local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
+					if C(team_enemies) >= 1 then
+						local selected = team_enemies[1]
+						if selected and bs.team[selected].state == "alive" then
+							local enemies = bs.get_team_players(selected)
+							local enemy = enemies[math.random(1, C(enemies))]
+							if enemy then
+								bots.Hunt(self, enemy)
 							end
 						end
 					end
-				elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
-					if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
-						if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
-							table.insert(detected, obj)
+				else
+					local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
+					if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
+						local enemies = bs.get_team_players(team_enemy)
+						local enemy = enemies[math.random(1, C(enemies))]
+						if enemy then
+							bots.Hunt(self, enemy)
 						end
 					end
 				end
 			end
-		end
-		-- In Bot Weapons
-		local to_shoot = detected--{}
-		--for _, obj in pairs(detected) do
-		--	local obj_pos = CheckPos(obj:get_pos())
-		--	local self_pos = CheckPos(self.object:get_pos())
-		--	if (core.line_of_sight(obj_pos, self_pos) == nil or core.line_of_sight(obj_pos, self_pos) == true) or (bots.line_of_sight(obj_pos, self_pos)) then
-		--		table.insert(to_shoot, obj)
-		--		print("inserted")
-		--	end
-		--	print("is detected")
-		--end
-		-- Gun Engine
-		local name = self.bot_name
-		for _, obj in pairs(to_shoot) do
-			if bots.path_finder_running[self.bot_name] then
-				bots.data[name].object:set_animation(bots.bots_animations[name].walk_mine, bots.bots_animations[name].anispeed, 0)
-			else
-				bots.data[name].object:set_animation(bots.bots_animations[name].mine, bots.bots_animations[name].anispeed, 0)
-			end
-			local to_use = ""
-			local weapon_type = "hand_weapon"
-			if bots.data[name].weapons.hard_weapon ~= "" then
-				to_use = bots.data[name].weapons.hard_weapon
-				weapon_type = "hard_weapon"
-			elseif bots.data[name].weapons.hand_weapon ~= "" then
-				to_use = bots.data[name].weapons.hand_weapon
-				weapon_type = "hand_weapon"
-			end
-			local itemstack = ItemStack(to_use)
-			if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
-				if not bots.queue_shot[name] then
-					bots.in_hand_weapon[self.bot_name] = to_use
-					
-					local from = bots.to_2d(self.object:get_pos())
-					local to = bots.to_2d(obj:get_pos())
-					local offset_to = {
-						x = to.x - from.x,
-						y = to.y - from.y
-					}
-					
-					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
-					
-					local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
-					local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
-					local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
-					local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
-					bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
-					if weapon_type == "hand_weapon" then
-						bots.queue_shot[name] = 0.4
-					else
-						bots.queue_shot[name] = cooldown or 0.1
+			-- In Bot View logic
+			local detected = {}
+			for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+50)) do
+				if Name(obj) and Name(obj) ~= self.bot_name then
+					if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
+						if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
+							if obj:get_luaentity() and obj:get_luaentity().bot_name then
+								if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
+									table.insert(detected, obj)
+									--print("Added "..Name(obj))
+								end
+							end
+						end
+					elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
+						if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
+							if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
+								table.insert(detected, obj)
+							end
+						end
 					end
-					if bots.data[name].wield_item_obj then
-						bots.data[name].wield_item_obj:set_properties({
-							textures = {itemstack:get_name()},
-								visual_size = {x=0.25, y=0.25},
-						})
+				end
+			end
+			-- In Bot Weapons
+			local to_shoot = detected--{}
+			--for _, obj in pairs(detected) do
+			--	local obj_pos = CheckPos(obj:get_pos())
+			--	local self_pos = CheckPos(self.object:get_pos())
+			--	if (core.line_of_sight(obj_pos, self_pos) == nil or core.line_of_sight(obj_pos, self_pos) == true) or (bots.line_of_sight(obj_pos, self_pos)) then
+			--		table.insert(to_shoot, obj)
+			--		print("inserted")
+			--	end
+			--	print("is detected")
+			--end
+			-- Gun Engine
+			local name = self.bot_name
+			for _, obj in pairs(to_shoot) do
+				if bots.path_finder_running[self.bot_name] then
+					bots.data[name].object:set_animation(bots.bots_animations[name].walk_mine, bots.bots_animations[name].anispeed, 0)
+				else
+					bots.data[name].object:set_animation(bots.bots_animations[name].mine, bots.bots_animations[name].anispeed, 0)
+				end
+				local to_use = ""
+				local weapon_type = "hand_weapon"
+				if bots.data[name].weapons.hard_weapon ~= "" then
+					to_use = bots.data[name].weapons.hard_weapon
+					weapon_type = "hard_weapon"
+				elseif bots.data[name].weapons.hand_weapon ~= "" then
+					to_use = bots.data[name].weapons.hand_weapon
+					weapon_type = "hand_weapon"
+				end
+				local itemstack = ItemStack(to_use)
+				if itemstack and itemstack ~= "" and itemstack:get_name() ~= "" then
+					if not bots.queue_shot[name] then
+						bots.in_hand_weapon[self.bot_name] = to_use
+						
+						local from = bots.to_2d(self.object:get_pos())
+						local to = bots.to_2d(obj:get_pos())
+						local offset_to = {
+							x = to.x - from.x,
+							y = to.y - from.y
+						}
+						
+						local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+						
+						local damage = itemstack:get_definition().RW_gun_capabilities.gun_damage
+						local sound = itemstack:get_definition().RW_gun_capabilities.gun_sound
+						local cooldown = itemstack:get_definition().RW_gun_capabilities.gun_cooldown
+						local velocity = itemstack:get_definition().RW_gun_capabilities.gun_velocity or bots.default_gun_velocity
+						bots.shoot(1, damage or {fleshy=5}, "bs_bots:bullet", sound, velocity, self, obj)
+						if weapon_type == "hand_weapon" then
+							bots.queue_shot[name] = 0.4
+						else
+							bots.queue_shot[name] = cooldown or 0.1
+						end
+						if bots.data[name].wield_item_obj then
+							bots.data[name].wield_item_obj:set_properties({
+								textures = {itemstack:get_name()},
+									visual_size = {x=0.25, y=0.25},
+							})
+						end
+						self.object:set_yaw(dir)
 					end
-					self.object:set_yaw(dir)
 				end
 			end
 		end
 	else
-		bbp.WhileOnPrepareTime(self)
-		bots.CancelPathTo[self.bot_name] = true
-		local bot_pos = self.object:get_pos()
-		if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
-			self.object:set_velocity(vector.new(0,0,0))
+		if self then
+			bbp.WhileOnPrepareTime(self)
+			bots.CancelPathTo[self.bot_name] = true
+			local bot_pos = self.object:get_pos()
+			if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
+				self.object:set_velocity(vector.new(0,0,0))
+			end
+			local from = bots.to_2d(self.object:get_pos())
+			local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
+			local offset_to = {
+				x = to.x - from.x,
+				y = to.y - from.y
+			}
+			local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+			self.object:set_yaw(dir)
 		end
-		local from = bots.to_2d(self.object:get_pos())
-		local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
-		local offset_to = {
-			x = to.x - from.x,
-			y = to.y - from.y
-		}
-		local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
-		self.object:set_yaw(dir)
 	end
 end
 
