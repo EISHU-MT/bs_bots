@@ -33,14 +33,18 @@ end
 
 function bots.assign_path_to(self, path, speed)
 	--print("ASSIGNED PATH TO: "..self.bot_name)
-	if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
-		path = bots.find_path_to(CheckPos(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
-	elseif (not (vector.distance(path[1], self.object:get_pos()) > 1)) and bots.path_to[self.bot_name].path then
-		return
+	if self and path and speed then
+		if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
+			path = bots.find_path_to(CheckPos(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
+		elseif (not (vector.distance(path[1], self.object:get_pos()) > 1)) and bots.path_to[self.bot_name].path then
+			return
+		end
+		if path then
+			bots.path_to[self.bot_name].path = path
+			bots.path_to[self.bot_name].speed = speed
+			bots.path_to[self.bot_name].timer = #path
+		end
 	end
-	bots.path_to[self.bot_name].path = path
-	bots.path_to[self.bot_name].speed = speed
-	bots.path_to[self.bot_name].timer = #path
 end
 
 local true_var = true
