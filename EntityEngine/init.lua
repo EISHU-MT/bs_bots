@@ -184,7 +184,7 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 			--	acceleration = self.object:get_acceleration()
 			--}
 			self.isonground = moveresult.touching_ground
-			self.logic(self)
+			Logic.OnStep(self)
 			self.hunter(self)
 			self.MovementAct(self)
 			if self.SubMovementsQueue then
