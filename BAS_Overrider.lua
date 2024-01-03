@@ -149,24 +149,67 @@ core.register_on_player_hpchange(function(player, hp, reason)
 				local player_team = bs_old.get_player_team_css(player)
 				if bot_team ~= player_team then
 					if player:get_hp() - damage <= 0 then
-						if bs.get_team_players_index(player_team) <= 0 then
-							bs_match.finish_match(bot_team)
-						else
+						if PvpMode.Mode == 1 then
+							if bs.get_team_players_index(player_team) <= 0 then
+								bs_match.finish_match(bot_team)
+							else
+								local hitter = reason.object
+								PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+								RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+								bs.allocate_to_spectator(player, true)
+								stats.deaths.add_to(Name(player))
+							end
+						elseif PvpMode.Mode == 2 then	
 							local hitter = reason.object
 							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
 							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
-							bs.allocate_to_spectator(player, true)
 							stats.deaths.add_to(Name(player))
+							player:set_pos(maps.current_map.teams[bs.get_team(player)])
+						elseif PvpMode.Mode == 3 then
+							local hitter = reason.object
+							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+							stats.deaths.add_to(Name(player))
+							local response = PvpMode.ThirdModeFunction(player, reason.object)
+							if response == true then
+								bs.allocate_to_spectator(player, true)
+							elseif response == false then
+								player:set_pos(maps.current_map.teams[bs.get_team(player)])
+								player:set_hp(20)
+							else
+								error("\nPvP Engine:\nOn getting response of ThirdModeFunction:\nCannot find boolean in response.\n")
+							end
 						end
 					end
 				else
 					core.log("warning", "Error: A bot punched his teammate. This error should not appear.")
 					if player:get_hp() - damage <= 0 then
-						local hitter = reason.object
-						PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
-						RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
-						bs.allocate_to_spectator(player, true)
-						stats.deaths.add_to(Name(player))
+						if PvpMode.Mode == 1 then
+							local hitter = reason.object
+							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+							bs.allocate_to_spectator(player, true)
+							stats.deaths.add_to(Name(player))
+						elseif PvpMode == 2 then
+							local hitter = reason.object
+							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+							stats.deaths.add_to(Name(player))
+						elseif PvpMode == 3 then
+							local hitter = reason.object
+							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
+							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
+							stats.deaths.add_to(Name(player))
+							local response = PvpMode.ThirdModeFunction(player, reason.object)
+							if response == true then
+								bs.allocate_to_spectator(player, true)
+							elseif response == false then
+								player:set_pos(maps.current_map.teams[bs.get_team(player)])
+								player:set_hp(20)
+							else
+								error("\nPvP Engine:\nOn getting response of ThirdModeFunction:\nCannot find boolean in response.\n")
+							end
+						end
 					end
 				end
 			else
