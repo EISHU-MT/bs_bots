@@ -96,7 +96,7 @@ end
 
 local C = CountTable
 
-function Logic.OnStep(self)
+function Logic.OldOnStep(self)
 	if bs_match.match_is_started then
 		if self then
 			loaded_bots = {}
@@ -210,8 +210,18 @@ function Logic.OnStep(self)
 				end
 			end
 		end
-	else
-		if self then
+	end
+end
+
+function Logic.OnStep(self)
+	if self then
+		if bs_match.match_is_started then
+			if BotsLogicFunction then
+				BotsLogicFunction(self)
+			else
+				Logic.OldOnStep(self)
+			end
+		else
 			bbp.WhileOnPrepareTime(self)
 			bots.CancelPathTo[self.bot_name] = true
 			local bot_pos = self.object:get_pos()
