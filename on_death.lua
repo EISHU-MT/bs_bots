@@ -1,3 +1,4 @@
+bots.dead_body = {}
 return function(self, killer)
 	if PvpMode.Mode == 1 then
 		bots.data[self.bot_name].state = "dead"
@@ -110,16 +111,29 @@ return function(self, killer)
 			end
 		end
 		
+		local player_look = self.object:get_yaw()
+		local obj = core.add_entity(self.object:get_pos(), "bs_bots:__dead_body")
+		obj:set_yaw(player_look)
+		obj:set_properties({
+			textures = {"character.png^player_"..bots.data[self.bot_name].team.."_overlay.png"}
+		})
+		obj:set_animation({x = 162, y = 166}, 15, 0)
+		obj:set_acceleration(vector.new(0,-9.81,0))
+		bots.dead_body[self.bot_name] = obj
+		
 		KillHistory.RawAdd(
 			{text = killer_name, color = bs.get_team_color(bs.get_player_team_css(killer_name), "number")},
 			image,
 			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF}
 		)
-		
-		bots.data[self.bot_name].object = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
-		SpawnPlayerAtRandomPosition(bots.data[self.bot_name].object, bots.data[self.bot_name].team)
-		bots.data[self.bot_name].object:set_armor_groups({fleshy=100, immortal=0})
-		bots.add_nametag(bots.data[self.bot_name].object, bots.data[self.bot_name].team, self.bot_name)
-		UpdateTeamHuds()
+		core.after(3, function(self)
+			bots.data[self.bot_name].object = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
+			SpawnPlayerAtRandomPosition(bots.data[self.bot_name].object, bots.data[self.bot_name].team)
+			bots.data[self.bot_name].object:set_armor_groups({fleshy=100, immortal=0})
+			bots.add_nametag(bots.data[self.bot_name].object, bots.data[self.bot_name].team, self.bot_name)
+			UpdateTeamHuds()
+			bots.dead_body[self.bot_name]:remove()
+			bots.dead_body[self.bot_name] = nil
+		end, self)
 	end
 end
