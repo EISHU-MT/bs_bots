@@ -214,6 +214,7 @@ function Logic.OldOnStep(self)
 end
 
 function Logic.OnStep(self)
+	if not (maps.current_map and maps.current_map.teams) then return end
 	if self then
 		if bs_match.match_is_started then
 			if BotsLogicFunction then
