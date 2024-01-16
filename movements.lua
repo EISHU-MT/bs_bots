@@ -28,7 +28,20 @@ function bots.is_fordwarding(self)
 end
 
 function bots.is_there_y_difference(pos1, pos2)
-	return pos1.y ~= pos2.y
+	if pos1 and pos2 then
+		--local p1 = core.get_node(pos1)
+		--local p2 = core.get_node(pos2)
+		--local p1p = core.registered_items[p1.name]
+		--local p2p = core.registered_items[p2.name]
+		--if (p1p and (p1p.walkable or p1p.groups.liquid)) and (p2p and (p2p.walkable or p2p.groups.liquid)) then
+		--	return false
+		--else
+		--	return true
+		--end
+		return pos1.y ~= pos2.y
+	else
+		return false
+	end
 end
 
 function bots.assign_path_to(self, path, speed)
@@ -47,10 +60,12 @@ function bots.assign_path_to(self, path, speed)
 	end
 end
 
+local latest_jid = {}
+
 local true_var = true
 
 function bots.MovementFunction(self)
-	if bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
+	if self and bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
 		if not bots.AbortPathMovementFor[self.bot_name] then --BsEntities.IsQueueEmpty(self) -- might fix soon
 			local path = bots.path_to[self.bot_name].path
 			if #path <= 1 then
@@ -92,7 +107,10 @@ function bots.MovementFunction(self)
 				bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - 1
 			end
 			
-
+			local will_jump = false
+			if bots.is_there_y_difference(path[path_iter + 1], path[path_iter]) then
+				will_jump = true
+			end
 			
 			local turn_rate = self.turn_rate or 8
 			if vector.distance(pos, tpos) < width + 2 then
@@ -109,8 +127,10 @@ function bots.MovementFunction(self)
 			
 			BsEntities.TurnToYaw(self, core.dir_to_yaw(dir), turn_rate)
 			BsEntities.AdvanceHorizontal(self, self.max_speed * speed + 0.1)
-			if will_jump then
-				BsEntities.QueueFreeJump(self)
+			if will_jump and latest_jid[self.bot_name] ~= path_iter - 1 then
+				if self.isonground then
+					BsEntities.QueueFreeJump(self)
+				end
 			end
 			BsEntities.AnimateEntity(self, "walk")
 			bots.path_finder_running[self.bot_name] = true
