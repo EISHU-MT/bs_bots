@@ -67,7 +67,7 @@ return function(self, killer)
 		)
 		UpdateTeamHuds()
 	elseif PvpMode.Mode == 2 then
-		bots.data[self.bot_name].state = "alive"
+		bots.data[self.bot_name].state = "dead"
 		local killer_team = bs.get_player_team_css(killer)
 		local killer_name = Name(killer)
 		local killer_weapon = ""
@@ -127,6 +127,7 @@ return function(self, killer)
 			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF}
 		)
 		core.after(3, function(self)
+			bots.data[self.bot_name].state = "alive"
 			bots.data[self.bot_name].object = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
 			SpawnPlayerAtRandomPosition(bots.data[self.bot_name].object, bots.data[self.bot_name].team)
 			bots.data[self.bot_name].object:set_armor_groups({fleshy=100, immortal=0})
@@ -134,6 +135,7 @@ return function(self, killer)
 			UpdateTeamHuds()
 			bots.dead_body[self.bot_name]:remove()
 			bots.dead_body[self.bot_name] = nil
+			self.object:remove()
 		end, self)
 	end
 end
