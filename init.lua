@@ -286,6 +286,14 @@ end
 
 core.register_globalstep(step)
 
+minetest.register_on_shutdown(function()
+	for bot, btd in pairs(bots.data) do
+		if btd and btd.object then
+			btd.object:remove()
+		end
+	end
+end)
+
 bots.register_bot({
 	name = "Claude",
 	team = "blue",
