@@ -1,4 +1,5 @@
-if core.is_singleplayer() then
+
+if core.is_singleplayer() and ffjie then
 	core.log("action", "Singleplayer mode detected!")
 	loop_time = 0
 	core.register_globalstep(function(dtime)
