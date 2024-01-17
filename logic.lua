@@ -104,7 +104,7 @@ function Logic.OldOnStep(self)
 			if self.isonground then
 				if C(maps.current_map.teams) > 2 then
 					local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
-					if C(team_enemies) >= 1 then
+					if team_enemies and C(team_enemies) >= 1 then
 						local selected = team_enemies[1]
 						if selected and bs.team[selected].state == "alive" then
 							local enemies = bs.get_team_players(selected)
