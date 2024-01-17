@@ -133,8 +133,12 @@ return function(self, killer)
 			bots.data[self.bot_name].object:set_armor_groups({fleshy=100, immortal=0})
 			bots.add_nametag(bots.data[self.bot_name].object, bots.data[self.bot_name].team, self.bot_name)
 			UpdateTeamHuds()
-			bots.dead_body[self.bot_name]:remove()
-			bots.dead_body[self.bot_name] = nil
+			if bots.dead_body[self.bot_name] then
+				bots.dead_body[self.bot_name]:remove()
+				bots.dead_body[self.bot_name] = nil
+			else
+				bots.dead_body[self.bot_name] = nil
+			end
 			self.object:remove()
 		end, self)
 	end
