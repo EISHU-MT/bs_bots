@@ -34,7 +34,7 @@ function bs.get_team_players(team)
 	-- Commence with bots
 	local botss = {}
 	for name, data in pairs(bots.data) do
-		if data.team == team then
+		if data and data.team == team then
 			if data.state == "alive" then
 				table.insert(botss, data.object)
 			end
