@@ -127,22 +127,26 @@ function Logic.OldOnStep(self)
 			end
 			-- In Bot View logic
 			local detected = {}
-			for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+50)) do
+			for _, obj in pairs(core.get_objects_inside_radius(self.object:get_pos(), self.view_range+5)) do
 				if Name(obj) and Name(obj) ~= self.bot_name then
 					if obj:get_luaentity() and obj:get_luaentity().bot_name ~= self.bot_name then -- Make sure that is not the scanning bot
 						if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
 							if obj:get_luaentity() and obj:get_luaentity().bot_name then
-								if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
-									table.insert(detected, obj)
-									--print("Added "..Name(obj))
-								end
+								--if vector.distance(obj:get_pos(), self.object:get_pos()) < self.view_range then
+									if bots.data[obj:get_luaentity().bot_name] and bots.data[self.bot_name] and bots.data[obj:get_luaentity().bot_name].team ~= bots.data[self.bot_name].team then
+										table.insert(detected, obj)
+										--print("Added "..Name(obj))
+									end
+								--end
 							end
 						end
 					elseif obj:is_player() and bs_old.get_player_team_css(obj) ~= "" then--bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team
 						if --[[(vector.distance(obj:get_pos(), self.object:get_pos()) < 2 and vector.distance(obj:get_pos(), self.object:get_pos()) > 0) or--]] bots.is_in_bot_view(self, obj) then
-							if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
-								table.insert(detected, obj)
-							end
+							--if vector.distance(obj:get_pos(), self.object:get_pos()) < self.view_range then
+								if bs_old.get_player_team_css(obj) ~= bots.data[self.bot_name].team then
+									table.insert(detected, obj)
+								end
+							--end
 						end
 					end
 				end
@@ -213,30 +217,67 @@ function Logic.OldOnStep(self)
 	end
 end
 
+--Logic.BotsData = {} -- Avoid more than 1 bot per registered bot
+
+--for bn in pairs(bots.data) do
+--	Logic.BotsData[bn] = {}
+--end
+
+Logic.Clock = {}
+
 function Logic.OnStep(self)
 	if not (maps.current_map and maps.current_map.teams) then return end
 	if self then
-		if bs_match.match_is_started then
-			if BotsLogicFunction then
-				BotsLogicFunction(self)
+		if not Logic.Clock[self.bot_name] then Logic.Clock[self.bot_name] = 0 end
+		Logic.Clock[self.bot_name] = Logic.Clock[self.bot_name] + self.dtime
+		if Logic.Clock[self.bot_name] >= 0.5 then
+			if self.id ~= bots.data[self.bot_name].id then
+				self.object:remove()
+			end
+			if bs_match.match_is_started then
+				if BotsLogicFunction then
+					BotsLogicFunction(self)
+				else
+					Logic.OldOnStep(self)
+				end
 			else
-				Logic.OldOnStep(self)
+				bbp.WhileOnPrepareTime(self)
+				bots.CancelPathTo[self.bot_name] = true
+				local bot_pos = self.object:get_pos()
+				if bot_pos then
+					if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
+						self.object:set_velocity(vector.new(0,0,0))
+					end
+					local from = bots.to_2d(self.object:get_pos())
+					local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
+					local offset_to = {
+						x = to.x - from.x,
+						y = to.y - from.y
+					}
+					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+					self.object:set_yaw(dir)
+				end
 			end
+			Logic.Clock[self.bot_name] = 0
 		else
-			bbp.WhileOnPrepareTime(self)
-			bots.CancelPathTo[self.bot_name] = true
-			local bot_pos = self.object:get_pos()
-			if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
-				self.object:set_velocity(vector.new(0,0,0))
+			if not bs_match.match_is_started then
+				bbp.WhileOnPrepareTime(self)
+				bots.CancelPathTo[self.bot_name] = true
+				local bot_pos = self.object:get_pos()
+				if bot_pos then
+					if vector.distance(bot_pos, maps.current_map.teams[bots.data[self.bot_name].team]) > 3 then
+						self.object:set_velocity(vector.new(0,0,0))
+					end
+					local from = bots.to_2d(self.object:get_pos())
+					local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
+					local offset_to = {
+						x = to.x - from.x,
+						y = to.y - from.y
+					}
+					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
+					self.object:set_yaw(dir)
+				end
 			end
-			local from = bots.to_2d(self.object:get_pos())
-			local to = bots.to_2d(maps.current_map.teams[bots.data[self.bot_name].team])
-			local offset_to = {
-				x = to.x - from.x,
-				y = to.y - from.y
-			}
-			local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
-			self.object:set_yaw(dir)
 		end
 	end
 end
