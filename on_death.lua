@@ -126,9 +126,11 @@ return function(self, killer)
 			image,
 			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF}
 		)
-		core.after(3, function(self)
+		core.after(6, function(self)
 			bots.data[self.bot_name].state = "alive"
-			bots.data[self.bot_name].object = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
+			local obj = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
+			bots.restart_bot_id(obj:get_luaentity())
+			bots.data[self.bot_name].object = obj
 			SpawnPlayerAtRandomPosition(bots.data[self.bot_name].object, bots.data[self.bot_name].team)
 			bots.data[self.bot_name].object:set_armor_groups({fleshy=100, immortal=0})
 			bots.add_nametag(bots.data[self.bot_name].object, bots.data[self.bot_name].team, self.bot_name)
