@@ -98,7 +98,7 @@ local C = CountTable
 
 function Logic.OldOnStep(self)
 	if bs_match.match_is_started then
-		if self then
+		if self and self.object and self.object:get_yaw() then
 			loaded_bots = {}
 			-- Hunt logic
 			if self.isonground then
@@ -213,6 +213,8 @@ function Logic.OldOnStep(self)
 					end
 				end
 			end
+		else
+			core.log("warning", "Unknown bot info - the bot might got deleted on Logic Function")
 		end
 	end
 end
