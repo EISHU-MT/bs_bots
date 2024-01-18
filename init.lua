@@ -127,6 +127,7 @@ bots = {
 					SpawnPlayerAtRandomPosition(bots.data[name].object, data.team)
 					bots.data[name].object:set_armor_groups({fleshy=100, immortal=0})
 					bots.add_nametag(bots.data[name].object, data.team, name)
+					bots.restart_bot_id(data)
 					bots.data[name].state = "alive"
 				end
 			else
@@ -134,9 +135,16 @@ bots = {
 				SpawnPlayerAtRandomPosition(bots.data[name].object, data.team)
 				bots.data[name].object:set_armor_groups({fleshy=100, immortal=0})
 				bots.add_nametag(bots.data[name].object, data.team, name)
+				bots.restart_bot_id(data)
 				bots.data[name].state = "alive"
 			end
 		end
+	end,
+	restart_bot_id = function(self)
+		local id = FormRandomString(3)
+		self.id = id
+		self.object:get_luaentity().id = id
+		bots.data[self.bot_name or self.name].id = id
 	end,
 	calc_dir = function(rotation)
 		-- Calculate the look direction based on the rotation
