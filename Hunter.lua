@@ -30,9 +30,25 @@ function bots.Hunt(self, enemy, vel, force)
 	end
 end
 
+function bots.is_enemy_alive(obj)
+	if obj then
+		if obj:is_player() then
+			if RespawnDelay and RespawnDelay.players[Name(obj)] then
+				return false
+			else
+				return true
+			end
+		else
+			return obj:get_yaw() ~= nil
+		end
+	else
+		return false
+	end
+end
+
 function bots.GetHuntFunction(self)
 	if bots.hunting[self.bot_name] then
-		if BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
+		if bots.is_enemy_alive(bots.hunting[self.bot_name]) and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
 			if bs.get_player_team_css(bots.hunting[self.bot_name]) ~= "" then
 				local enemy = bots.hunting[self.bot_name]
 				if bots.stop_hunter[self.bot_name] then
