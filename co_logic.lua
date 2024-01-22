@@ -3,7 +3,7 @@ function bots.co_logic(self, mv)
 		for _, collisions in pairs(mv.collisions) do
 			if collisions.type == "object" then
 				local obj = collisions.object
-				if Name(obj) then
+				if Name(obj) and bots.is_enemy_alive(collisions.object) then
 					local player_team = bs.get_player_team_css(obj)
 					if player_team ~= "" and player_team ~= bots.data[self.bot_name].team then
 						if bots.path_finder_running[self.bot_name] then
