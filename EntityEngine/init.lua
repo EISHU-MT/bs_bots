@@ -175,10 +175,10 @@ BsEntities.LatestAccAndVelValues = {}
 -- Entity
 function BsEntities.OnSelfFunction(self, dtime, moveresult)
 	self.dtime = dtime
-	self.__time = self.__time + dtime
+	--self.__time = self.__time + dtime
 	self.totaltime = self.totaltime + dtime
 	if BsEntities.Ticks.state then
-		if self.__time >= 0.1 then
+		--if self.__time >= 0.01 then
 		--BsEntities.LatestAccAndVelValues[self.bot_name] = {
 			--	velocity = self.object:get_velocity(),
 			--	acceleration = self.object:get_acceleration()
@@ -187,6 +187,7 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 			Logic.OnStep(self)
 			self.hunter(self)
 			self.MovementAct(self)
+			Logic.DoShootProcess(self)
 			if self.SubMovementsQueue then
 				for _, func in pairs(self.SubMovementsQueue) do
 					if func(self) then
@@ -194,8 +195,8 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 					end
 				end
 			end
-			self.__time = 0
-		end
+			--self.__time = 0
+		--end
 	end
 end
 
