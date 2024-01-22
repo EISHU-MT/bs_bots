@@ -22,10 +22,10 @@ local function on_step(self, dtime, mr)
 						local enemy_pos = collisions.object:get_pos()
 						local bullet_pos = self.object:get_pos()
 						if enemy_pos and bullet_pos then
-							local upper_enemy_pos = vector.add(enemy_pos, vector.new(0,1.05,0))
+							local upper_enemy_pos = vector.add(enemy_pos, vector.new(0,1.55,0))
 							if bullet_pos.y >= upper_enemy_pos.y then
 								for name, dmg in pairs(self.damage) do
-									self.damage[name] = dmg + 20 - PlayerArmor.HeadHPDifference[Name(collisions.object)]
+									--self.damage[name] = dmg + 15 - PlayerArmor.HeadHPDifference[Name(collisions.object)] -- too much.
 								end
 							else
 								for name, dmg in pairs(self.damage) do
@@ -93,16 +93,15 @@ local bullets_cache = {}
 bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity, data, obj)
 	local to_pos = obj:get_pos()
 	local pos = data.object:get_pos()
+	if not (to_pos or pos) then return end
 	local entity = data.object:get_luaentity()
 	local dir = bots.calc_dir(data.object:get_rotation())
 	local yaw = data.object:get_yaw()
 	local random = math.random(0, 23)
-	if random >= 10 then
-		to_pos = vector.subtract(to_pos, vector.new(0,1,0))
-	end
+	to_pos = vector.subtract(to_pos, vector.new(0,0.3,0))
 	local direction = vector.direction(pos, to_pos)
-	local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
-	local svertical = math.asin(direction.y) - (math.pi/2)
+	--local tmpsvertical = data.object:get_rotation().x / (math.pi/2)
+	--local svertical = math.asin(direction.y) - (math.pi/2)
 	combined_velocity = combined_velocity + 5
 	if vector.distance(pos, to_pos) > 3 then
 		if pos and dir and yaw then
@@ -131,7 +130,6 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 				
 				obj:set_pos(pos)
 				obj:set_velocity({x=direction.x * combined_velocity, y=direction.y * combined_velocity, z=direction.z * combined_velocity})
-				--obj:set_rotation({x=0,y=yaw / (math.pi/2),z=-direction.y})
 			end
 		end
 	else
