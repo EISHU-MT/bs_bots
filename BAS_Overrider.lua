@@ -164,7 +164,8 @@ core.register_on_player_hpchange(function(player, hp, reason)
 							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
 							RunCallbacks(PvpCallbacks.Callbacks, {died = player, killer = hitter, teams = {died = bs.get_team(player), killer = bs.get_team(reason.object)}})
 							stats.deaths.add_to(Name(player))
-							player:set_pos(maps.current_map.teams[bs.get_team(player)])
+							--player:set_pos(maps.current_map.teams[bs.get_team(player)])
+							RespawnDelay.DoRespawnDelay(player)
 						elseif PvpMode.Mode == 3 then
 							local hitter = reason.object
 							PlayerKills[Name(player)].deaths = PlayerKills[Name(player)].deaths + 1
