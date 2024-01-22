@@ -33,6 +33,28 @@ return function(self, killer)
 			end
 		end
 		
+		if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
+			core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hard_weapon))
+			local data = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hard_weapon)
+			if data then
+				if data.ammo.uses_ammo then
+					core.add_item(CheckPos(self.object:get_pos()), ItemStack(data.ammo.type.." "..data.ammo.count))
+				end
+				bots.data[self.bot_name].weapons.hard_weapon = ""
+			end
+		end
+		
+		if bots.data[self.bot_name].weapons.hand_weapon ~= "" or bots.data[self.bot_name].weapons.hand_weapon ~= config.DefaultStartWeapon.weapon then
+			core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hand_weapon))
+			local data = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hand_weapon)
+			if data then
+				if data.ammo.uses_ammo then
+					core.add_item(CheckPos(self.object:get_pos()), ItemStack(data.ammo.type.." "..data.ammo.count))
+				end
+				bots.data[self.bot_name].weapons.hand_weapon = config.DefaultStartWeapon.weapon
+			end
+		end
+		
 		RunCallbacks(BotsCallbacks.RegisteredOnKillBot, self, killer)
 		
 		local player_look = self.object:get_yaw()
@@ -126,6 +148,29 @@ return function(self, killer)
 			image,
 			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF}
 		)
+		
+		if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
+			core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hard_weapon))
+			local data = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hard_weapon)
+			if data then
+				if data.ammo.uses_ammo then
+					core.add_item(CheckPos(self.object:get_pos()), ItemStack(data.ammo.type.." "..data.ammo.count))
+				end
+				bots.data[self.bot_name].weapons.hard_weapon = ""
+			end
+		end
+		
+		if bots.data[self.bot_name].weapons.hand_weapon ~= "" and bots.data[self.bot_name].weapons.hand_weapon ~= config.DefaultStartWeapon.weapon then
+			core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hand_weapon))
+			local data = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hand_weapon)
+			if data then
+				if data.ammo.uses_ammo then
+					core.add_item(CheckPos(self.object:get_pos()), ItemStack(data.ammo.type.." "..data.ammo.count))
+				end
+				bots.data[self.bot_name].weapons.hand_weapon = config.DefaultStartWeapon.weapon
+			end
+		end
+		
 		core.after(6, function(self)
 			bots.data[self.bot_name].state = "alive"
 			local obj = core.add_entity(maps.current_map.teams[bots.data[self.bot_name].team], bots.data[self.bot_name].object_name)
