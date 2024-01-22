@@ -94,6 +94,7 @@ bots = {
 			static_save = false,
 		},
 		holder = nil,
+		wield_hand = true,
 		on_step = function(self)
 			local obj = self.object:get_attach()
 			if obj then
@@ -183,15 +184,18 @@ function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
 		bots.bots_animations[def.name] = table.copy(def.animations)
 		bots.favorite_weapons[def.name] = table.copy(def.favorite_weapons)
+		bots.in_hand_weapon[def.name] = config.DefaultStartWeapon.weapon
 		bots.data[def.name] = {
 			name = def.name,
 			object = nil,
-			weapons = {hand_weapon = "rangedweapons:glock17", hard_weapon = ""},
+			weapons = {hand_weapon = config.DefaultStartWeapon.weapon, hard_weapon = ""},
 			team = def.team,
 			wield_item_obj = nil,
 			object_name = "bs_bots:"..def.name,
 			state = "dead",
 			money = 20,
+			ammo_of_weapon = {hard_weapon=0,hand_weapon=0},
+			cache_weapon_to_recharge = "", -- special
 		}
 		local bot_body_data = table.copy(bots.bots_body)
 		bot_body_data.textures = {"character.png^player_"..def.team.."_overlay.png"}
@@ -211,7 +215,6 @@ function bots.register_bot(def)
 		bot_body_data.SubMovementsQueue = {}
 		bot_body_data.__time = 0
 		core.register_entity("bs_bots:"..def.name, bot_body_data)
-		bots.in_hand_weapon[def.name] = "rangedweapons:glock17"
 		bots.path_to[def.name] = {}
 	end
 end
@@ -224,7 +227,7 @@ core.register_entity("bs_bots:nametag", {
 	initial_properties = {
 		visual = "sprite",
 		visual_size = {x=2.16, y=0.18, z=2.16},
-		textures = {"invisible.png"},
+		textures = {"blank.png"},
 		pointable = false,
 		on_punch = function() return true end,
 		physical = false,
@@ -233,6 +236,7 @@ core.register_entity("bs_bots:nametag", {
 		makes_footstep_sound = false,
 		static_save = false,
 	},
+	is_nametag = true,
 	on_step = function(self)
 		local attach = self.object:get_attach()
 		if not attach then
@@ -305,7 +309,7 @@ end)
 bots.register_bot({
 	name = "Claude",
 	team = "blue",
-	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
+	favorite_weapons = {hard_weapon = "rangedweapons:g36", hand_weapon = "rangedweapons:luger"},
 	animations = {
 		stand = {x = 0, y = 79},
 		lay = {x = 162, y = 166},
@@ -335,7 +339,7 @@ bots.register_bot({
 bots.register_bot({
 	name = "Eugene",
 	team = "red",
-	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
+	favorite_weapons = {hard_weapon = "rangedweapons:m16", hand_weapon = "rangedweapons:beretta"},
 	animations = {
 		stand = {x = 0, y = 79},
 		lay = {x = 162, y = 166},
@@ -350,7 +354,7 @@ bots.register_bot({
 bots.register_bot({
 	name = "Tsar",
 	team = "blue",
-	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
+	favorite_weapons = {hard_weapon = "rangedweapons:scar", hand_weapon = "rangedweapons:luger"},
 	animations = {
 		stand = {x = 0, y = 79},
 		lay = {x = 162, y = 166},
@@ -365,7 +369,7 @@ bots.register_bot({
 bots.register_bot({
 	name = "Tiago",
 	team = "red",
-	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
+	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:m1991"},
 	animations = {
 		stand = {x = 0, y = 79},
 		lay = {x = 162, y = 166},
@@ -380,7 +384,7 @@ bots.register_bot({
 bots.register_bot({
 	name = "Juan",
 	team = "blue",
-	favorite_weapons = {hard_weapon = "rangedweapons:ak47", hand_weapon = "rangedweapons:deagle"},
+	favorite_weapons = {hard_weapon = "rangedweapons:g36", hand_weapon = "rangedweapons:makarov"},
 	animations = {
 		stand = {x = 0, y = 79},
 		lay = {x = 162, y = 166},
