@@ -125,8 +125,10 @@ return function(self, killer)
 		
 		local hand_item = ItemStack(killer_weapon)
 		local desc = hand_item:get_definition()
+		local s = 1.5
 		if desc.RW_gun_capabilities then
 				image = desc.RW_gun_capabilities.gun_icon.."^[transformFX"
+			s = 1
 		else
 			if desc.inventory_image and desc.inventory_image ~= "" then
 				image = desc.inventory_image
@@ -146,7 +148,8 @@ return function(self, killer)
 		KillHistory.RawAdd(
 			{text = killer_name, color = bs.get_team_color(bs.get_player_team_css(killer_name), "number")},
 			image,
-			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF}
+			{text = self.bot_name , color = bs.get_team_color(bots.data[self.bot_name].team, "number") or 0xFFF},
+			s
 		)
 		
 		if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
