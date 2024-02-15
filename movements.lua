@@ -8,7 +8,12 @@ local random = math.random
 local abs = math.abs
 local ceil = math.ceil
 local floor = math.floor
-local hitbox = function(s) return s.object:get_properties().collisionbox end
+local hitbox = function(s)
+	if s and s.object then
+		return s.object:get_properties().collisionbox
+	end
+	return nil
+end
 
 local vec_dir = vector.direction
 local vec_dist = vector.distance
@@ -85,6 +90,13 @@ function bots.MovementFunction(self)
 			local speed = bots.path_to[self.bot_name].speed or 1
 			local path_iter = bots.path_to[self.bot_name].timer
 			local width = ceil(hitbox(self)[4])
+			if not width then
+				bots.CancelPathTo[self.bot_name] = nil
+				bots.path_finder_running[self.bot_name] = false
+				bots.path_to[self.bot_name] = {}
+				BsEntities.AnimateEntity(self, "stand")
+				return
+			end
 			if #path >= width then
 				path_iter = width
 			end
