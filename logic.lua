@@ -10,7 +10,7 @@ bots.logics = {} -- a, b, c
 
 function bbp.WhileOnPrepareTime(self)
 	local LuaEntity = self.object:get_luaentity()
-	if LuaEntity and LuaEntity.bot_name and bots.data[LuaEntity.bot_name] then
+	if self and self.bot_name and LuaEntity and LuaEntity.bot_name and bots.data[LuaEntity.bot_name] then
 		-- Check if this script is runned
 		if not loaded_bots[LuaEntity.bot_name] then
 			loaded_bots[LuaEntity.bot_name] = true
@@ -225,8 +225,10 @@ function Logic.QueueReloadGun(self, type_of_gun)
 						if itemstack:get_definition().load_sound ~= nil then
 							minetest.sound_play(itemstack:get_definition().load_sound, {pos=self.object:get_pos(), gain=0.6, max_hear_distance=32})
 						end
-						self.cooldown = ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities.gun_reload
-						bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().rw_next_reload
+						if ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition() and ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities then
+							self.cooldown = ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities.gun_reload
+						end
+						bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().rw_next_reload or ""
 					end
 				end
 				if bots.data[self.bot_name].cache_weapon_to_recharge == bots.data[self.bot_name].weapons[type_of_gun] then
