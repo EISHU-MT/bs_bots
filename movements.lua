@@ -125,7 +125,9 @@ function bots.MovementFunction(self)
 			
 			local will_jump = false
 			if bots.is_there_y_difference(path[path_iter + 1], path[path_iter]) then
-				will_jump = true
+				if (doors.registered_doors[core.get_node(path[path_iter + 1]).name]) or (not core.registered_items[core.get_node(path[path_iter + 1]).name].walkable) then
+					will_jump = true
+				end
 			end
 			
 			local turn_rate = self.turn_rate or 8
