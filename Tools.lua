@@ -75,6 +75,17 @@ end
 
 local max_lengh = 160
 function bots.find_path_to(start_pos, end_pos, len)
+	--check if any node that is walkable is there
+	-- example: door
+	local name = core.get_node(start_pos).name
+	if name:match("doors") then
+		local vector_one = vector.add(vector.round(table.copy(start_pos)), vector.new(0,1,0))
+		local name2 = core.get_node(start_pos).name
+		if name2 == "air" then
+			local path = minetest.find_path(vector_one, CheckPos(end_pos), 500, 1, 5, "A*_noprefetch")
+			return path
+		end
+	end
 	local path = minetest.find_path(CheckPos(start_pos), CheckPos(end_pos), 500, 1, 5, "A*_noprefetch")
 	return path
 end
