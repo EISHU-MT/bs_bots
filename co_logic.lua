@@ -1,3 +1,7 @@
+-- fixed doors bug:
+bots.doors_toggled = {}
+bots.in_door = {}
+
 function bots.co_logic(self, mv)
 	if mv.collides then
 		for _, collisions in pairs(mv.collisions) do
@@ -33,11 +37,37 @@ function bots.co_logic(self, mv)
 					end
 				end
 			elseif collisions.type == "node" then
-				local pos = collisions.node_pos
-				local nodedata = minetest.get_node(pos)
-				local nodename = nodedata.name
+				local pos = vector.round(collisions.node_pos)
+				--if not bots.doors_toggled[self.bot_name] then bots.doors_toggled[self.bot_name] = vector.new() end
+				--if (not (bots.doors_toggled[self.bot_name] == pos)) then
+				--	local nodedata = minetest.get_node(pos)
+				--	local nodename = nodedata.name
+				--	if doors.registered_doors[nodename] then
+				--		doors.door_toggle(pos, nodedata)
+				--		--await
+				--		bots.doors_toggled[self.bot_name] = pos
+				--	end
+				--else
+				--	bots.doors_toggled[self.bot_name] = vector.new() -- flush
+				--end
+				local nodename = core.get_node(pos).name
 				if doors.registered_doors[nodename] then
-					doors.door_toggle(pos, nodedata)
+					bots.in_door[self.bot_name] = pos
+					--print("Start: "..self.bot_name)
+					local door_obj = doors.get(pos)
+					local bool = door_obj:open()
+					--print("opening")
+					if not bool then
+						local other_bool = door_obj:close()
+						--print("closing")
+						if not other_bool then
+							doors.door_toggle(pos, core.get_node(pos))
+							--print("toggling")
+						end
+					end
+				else
+					bots.in_door[self.bot_name] = nil
+					--print("Abort: "..self.bot_name)
 				end
 			end
 		end
