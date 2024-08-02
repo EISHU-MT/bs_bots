@@ -52,8 +52,12 @@ end
 function bots.assign_path_to(self, path, speed)
 	--print("ASSIGNED PATH TO: "..self.bot_name)
 	if self and path and speed then
+		if bots.in_door[self.bot_name] then
+			return
+		end
 		if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
-			path = bots.find_path_to(CheckPos(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
+			path = bots.find_path_to(vector.round(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
+			-- dont do anything if interrupted by door act
 		elseif (not (vector.distance(path[1], self.object:get_pos()) > 1)) and bots.path_to[self.bot_name].path then
 			return
 		end
