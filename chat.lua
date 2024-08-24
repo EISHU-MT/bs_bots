@@ -21,6 +21,10 @@ ToSay = {
 		"Go kill your enemy %s!",
 		"Cmonnnn.. Dont be lazy %s"
 	},
+	recharged_weapon = {
+		"I recharged my weapon, dont pay attention at me!",
+		"Got my weapon at full ammo, don't care about it..",
+	},
 	send_on_killed_teammate = {
 		{"Lets pay attention in our ways before we get killed", 2} -- {TEXT, CHANCE}
 	},
