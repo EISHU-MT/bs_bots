@@ -66,8 +66,26 @@ function bots.GetHuntFunction(self)
 					return
 				end
 				--local dist = vector.distance(pos, opos)
+				local do_path_case = false
+				local is_in_door = false
 				if not bots.in_door[self.bot_name] then
-					local path = bots.find_path_to(pos, opos)
+					do_path_case = true
+				else
+					is_in_door = true
+				end
+				if is_in_door then
+					if bots.line_of_sight(vector.offset(pos, 0, 1, 0), opos) then
+						bots.assign_direct_walk_to(self, opos, 1.7)
+						do_path_case = false
+					end
+				else
+					if bots.line_of_sight(pos, opos) then
+						bots.assign_direct_walk_to(self, opos, 1.7)
+						do_path_case = false
+					end
+				end
+				if do_path_case then
+					local path = bots.find_path_to(pos, opos, nil, self)
 					if path then
 						bots.assign_path_to(self, path, bots.hunt_vel[self.bot_name] or 1.4)
 					end
