@@ -183,7 +183,13 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 			--	velocity = self.object:get_velocity(),
 			--	acceleration = self.object:get_acceleration()
 			--}
+			
 			self.isonground = moveresult.touching_ground
+			--local standpos = BsEntities.GetStandPos(self)
+			--local underpos = vector.subtract(standpos, vector.new(0,1,0))
+			--if (core.registered_items[core.get_node(underpos).name].walkable == false) and moveresult.touching_ground then
+			--	self.isonground = false
+			--end
 			Logic.OnStep(self)
 			self.hunter(self)
 			self.MovementAct(self)
