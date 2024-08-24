@@ -76,6 +76,12 @@ return function(self, killer)
 			end
 		end
 		
+		--register chat by chance
+		local rnd = math.random(1, 20)
+		if rnd >= 14 then
+			bots.chat(self, "send_death_message", killer_name)
+		end
+		
 		TheEnd()
 		
 		if bs.get_player_team_css(killer_name) == "" then
