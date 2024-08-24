@@ -49,14 +49,28 @@ function bots.is_there_y_difference(pos1, pos2)
 	end
 end
 
+bots.direct_walk = {}
+bots.direct_walk_data = {}
+bots.direct_walk_cancel = {}
+
+function bots.assign_direct_walk_to(self, pos, speed)
+	-- Block any movement of paths
+	--bots.CancelPathTo[self.bot_name] = true
+	bots.direct_walk[self.bot_name] = true
+	bots.direct_walk_data[self.bot_name] = {speed = speed, pos = pos}
+end
+
 function bots.assign_path_to(self, path, speed)
 	--print("ASSIGNED PATH TO: "..self.bot_name)
 	if self and path and speed then
 		if bots.in_door[self.bot_name] then
 			return
 		end
+		if bots.direct_walk[self.bot_name] then -- high priority
+			return
+		end
 		if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
-			path = bots.find_path_to(vector.round(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos())) -- Reset path if bot are away from last path
+			path = bots.find_path_to(vector.round(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos()), nil, self) -- Reset path if bot are away from last path
 			-- dont do anything if interrupted by door act
 		elseif (not (vector.distance(path[1], self.object:get_pos()) > 1)) and bots.path_to[self.bot_name].path then
 			return
@@ -74,89 +88,135 @@ local latest_jid = {}
 local true_var = true
 
 function bots.MovementFunction(self)
-	if self and bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
-		if not bots.AbortPathMovementFor[self.bot_name] then --BsEntities.IsQueueEmpty(self) -- might fix soon
-			local path = bots.path_to[self.bot_name].path
-			if #path <= 1 then
-				bots.path_finder_running[self.bot_name] = false
-				bots.path_to[self.bot_name] = {}
-				bots.CancelPathTo[self.bot_name] = nil
-				BsEntities.AnimateEntity(self, "stand")
-				return
-			end
-			if bots.CancelPathTo[self.bot_name] then
-				bots.CancelPathTo[self.bot_name] = nil
-				bots.path_finder_running[self.bot_name] = false
-				bots.path_to[self.bot_name] = {}
-				BsEntities.AnimateEntity(self, "stand")
-				return
-			end
-			local speed = bots.path_to[self.bot_name].speed or 1
-			local path_iter = bots.path_to[self.bot_name].timer
-			local width = ceil(hitbox(self)[4])
-			if not width then
-				bots.CancelPathTo[self.bot_name] = nil
-				bots.path_finder_running[self.bot_name] = false
-				bots.path_to[self.bot_name] = {}
-				BsEntities.AnimateEntity(self, "stand")
-				return
-			end
-			if #path >= width then
-				path_iter = width
-			end
-			local pos = BsEntities.GetStandPos(self)
-			local tpos = path[path_iter]
-			local dir = vector.direction(pos, tpos)
-			local total_dist = vec_dist(pos, path[#path])
-			if total_dist <= width + 0.5 then
-				bots.CancelPathTo[self.bot_name] = nil
-				bots.path_finder_running[self.bot_name] = false
-				bots.path_to[self.bot_name] = {}
-				BsEntities.AnimateEntity(self, "stand")
-				return
-			end
-			if not self.isonground then
-				speed = speed * 0.5
-			end
-			if vec_dist(pos, tpos) <= width + 0.5 or (path[path_iter + 1] and vec_dist(pos, path[path_iter + 1]) <= width + 0.5) then
-				table.remove(path, 1)
-				bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - 1
-			end
-			
-			local will_jump = false
-			if bots.is_there_y_difference(path[path_iter + 1], path[path_iter]) then
-				if (doors.registered_doors[core.get_node(path[path_iter + 1]).name]) or (not core.registered_items[core.get_node(path[path_iter + 1]).name].walkable) then
-					will_jump = true
+	if bs_match.match_is_started then
+		if self and bots.direct_walk[self.bot_name] then
+			if bots.direct_walk_data[self.bot_name].pos then
+				local speed = bots.direct_walk_data[self.bot_name].speed or 1.5
+				local dir = vector.direction(CheckPos(self.object:get_pos()), bots.direct_walk_data[self.bot_name].pos)
+				if dir then
+					if vector.distance(self.object:get_pos(), bots.direct_walk_data[self.bot_name].pos) >= 0.8 then
+						--calculate if theres a node in front of bot
+						local pos_to_look = vector.add(self.object:get_pos(), vector.multiply(bots.calc_dir(self.object:get_rotation()), 1))
+						local node = core.get_node(pos_to_look)
+						if node.name and (core.registered_items[node.name].walkable or core.registered_items[node.name].walkable == nil) then
+							if self.isonground then
+								BsEntities.QueueFreeJump(self)
+							end
+						end
+						BsEntities.TurnToYaw(self, core.dir_to_yaw(dir), 10)
+						BsEntities.AdvanceHorizontal(self, self.max_speed * speed + 0.1)
+						BsEntities.AnimateEntity(self, "walk")
+					else
+						bots.direct_walk_cancel[self.bot_name] = nil
+						bots.direct_walk_data[self.bot_name] = nil
+						bots.direct_walk[self.bot_name] = nil
+						BsEntities.AnimateEntity(self, "stand")
+					end
+				end
+				if bots.direct_walk_cancel[self.bot_name] then
+					bots.direct_walk_cancel[self.bot_name] = nil
+					bots.direct_walk_data[self.bot_name] = nil
+					bots.direct_walk[self.bot_name] = nil
+					BsEntities.AnimateEntity(self, "stand")
 				end
 			end
-			
-			local turn_rate = self.turn_rate or 8
-			if vector.distance(pos, tpos) < width + 2 then
-				turn_rate = turn_rate + 2
-			end
-			bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - self.dtime
-			if bots.path_to[self.bot_name].timer <= 0 then
-				bots.CancelPathTo[self.bot_name] = nil
-				bots.path_finder_running[self.bot_name] = false
-				bots.path_to[self.bot_name] = {}
-				BsEntities.AnimateEntity(self, "stand")
-				return
-			end
-			
-			BsEntities.TurnToYaw(self, core.dir_to_yaw(dir), turn_rate)
-			BsEntities.AdvanceHorizontal(self, self.max_speed * speed + 0.1)
-			if will_jump and latest_jid[self.bot_name] ~= path_iter - 1 then
-				if self.isonground then
-					BsEntities.QueueFreeJump(self)
+			return
+		end
+		if self and bots.path_to[self.bot_name] and bots.path_to[self.bot_name].path then
+			if not bots.AbortPathMovementFor[self.bot_name] then --BsEntities.IsQueueEmpty(self) -- might fix soon
+				local path = bots.path_to[self.bot_name].path
+				if #path <= 1 then
+					bots.path_finder_running[self.bot_name] = false
+					bots.path_to[self.bot_name] = {}
+					bots.CancelPathTo[self.bot_name] = nil
+					BsEntities.AnimateEntity(self, "stand")
+					return
 				end
+				if bots.CancelPathTo[self.bot_name] then
+					bots.CancelPathTo[self.bot_name] = nil
+					bots.path_finder_running[self.bot_name] = false
+					bots.path_to[self.bot_name] = {}
+					BsEntities.AnimateEntity(self, "stand")
+					return
+				end
+				local speed = bots.path_to[self.bot_name].speed or 1
+				local path_iter = bots.path_to[self.bot_name].timer
+				local width = ceil(hitbox(self)[4])
+				if not width then
+					bots.CancelPathTo[self.bot_name] = nil
+					bots.path_finder_running[self.bot_name] = false
+					bots.path_to[self.bot_name] = {}
+					BsEntities.AnimateEntity(self, "stand")
+					return
+				end
+				if #path >= width then
+					path_iter = width
+				end
+				local pos = BsEntities.GetStandPos(self)
+				local tpos = path[path_iter]
+				local dir = vector.direction(pos, tpos)
+				local total_dist = vec_dist(pos, path[#path])
+				if total_dist <= width + 0.5 then
+					bots.CancelPathTo[self.bot_name] = nil
+					bots.path_finder_running[self.bot_name] = false
+					bots.path_to[self.bot_name] = {}
+					BsEntities.AnimateEntity(self, "stand")
+					return
+				end
+				if not self.isonground then
+					speed = speed * 0.5
+				end
+				if vec_dist(pos, tpos) <= width + 0.5 or (path[path_iter + 1] and vec_dist(pos, path[path_iter + 1]) <= width + 0.5) then
+					table.remove(path, 1)
+					bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - 1
+				end
+				
+				local will_jump = false
+				--if bots.is_there_y_difference(path[path_iter + 1], path[path_iter]) then
+					--if (doors.registered_doors[core.get_node(path[path_iter + 1]).name]) or (not core.registered_items[core.get_node(path[path_iter + 1]).name].walkable) then
+						local pos_to_look = vector.add(self.object:get_pos(), vector.multiply(bots.calc_dir(self.object:get_rotation()), 1))
+						local node = core.get_node(pos_to_look)
+						if node.name and ((core.registered_items[node.name].walkable or core.registered_items[node.name].walkable == nil) or doors.registered_doors[node.name]) then
+							if self.isonground then
+								BsEntities.QueueFreeJump(self)
+							end
+						end
+					--end
+				--end
+				
+				local turn_rate = self.turn_rate or 8
+				if vector.distance(pos, tpos) < width + 2 then
+					turn_rate = turn_rate + 2
+				end
+				bots.path_to[self.bot_name].timer = bots.path_to[self.bot_name].timer - self.dtime
+				if bots.path_to[self.bot_name].timer <= 0 then
+					bots.CancelPathTo[self.bot_name] = nil
+					bots.path_finder_running[self.bot_name] = false
+					bots.path_to[self.bot_name] = {}
+					BsEntities.AnimateEntity(self, "stand")
+					return
+				end
+				
+				BsEntities.TurnToYaw(self, core.dir_to_yaw(dir), turn_rate)
+				BsEntities.AdvanceHorizontal(self, self.max_speed * speed + 0.1)
+				-- OBSOLETE TYPE OF JUMP!
+				--if will_jump and latest_jid[self.bot_name] ~= path_iter - 1 then
+				--	if self.isonground then
+				--		BsEntities.QueueFreeJump(self)
+				--	end
+				--end
+				BsEntities.AnimateEntity(self, "walk")
+				bots.path_finder_running[self.bot_name] = true
+				bots.path_to[self.bot_name].path = path
+				--print(path_iter)
+				--print(bots.path_to[self.bot_name].timer)
 			end
-			BsEntities.AnimateEntity(self, "walk")
-			bots.path_finder_running[self.bot_name] = true
-			bots.path_to[self.bot_name].path = path
-			--print(path_iter)
-			--print(bots.path_to[self.bot_name].timer)
+		else
+			--core.log("action", "Waiting a path for "..self.bot_name)
 		end
 	else
-		--core.log("action", "Waiting a path for "..self.bot_name)
+		bots.direct_walk_cancel[self.bot_name] = nil
+		bots.direct_walk_data[self.bot_name] = nil
+		bots.direct_walk[self.bot_name] = nil
 	end
 end
