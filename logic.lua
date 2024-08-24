@@ -34,8 +34,8 @@ function bbp.WhileOnPrepareTime(self)
 								core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hard_weapon))
 								bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HardWeaponData.price
 								bots.data[self.bot_name].weapons.hard_weapon = HardWeaponData.item_name
-								local ammo = ItemStack(HardWeaponData.item_name):get_definition().RW_gun_capabilities.suitable_ammo[1][2] -- ammo
-								bots.data[self.bot_name].ammo_of_weapon.hard_weapon = ammo
+								--local ammo = ItemStack(HardWeaponData.item_name):get_definition().RW_gun_capabilities.suitable_ammo[1][2] -- ammo
+								bots.data[self.bot_name].ammo_of_weapon.hard_weapon = 0--ammo
 								core.log("action", "Bot "..BotName.." did buy: "..HardWeaponData.item_name)
 							end
 						else
@@ -54,16 +54,22 @@ function bbp.WhileOnPrepareTime(self)
 							local WeaponData = Shop.IdentifyWeapon(bots.data[self.bot_name].weapons.hand_weapon)
 							if WeaponData and WeaponData.price < HandWeaponData.price then
 								core.add_item(CheckPos(self.object:get_pos()), ItemStack(bots.data[self.bot_name].weapons.hand_weapon))
-								local ammo = ItemStack(HandWeaponData.item_name):get_definition().RW_gun_capabilities.suitable_ammo[1][2]
-								bots.data[self.bot_name].ammo_of_weapon.hand_weapon = ammo
+								--local ammo = ItemStack(HandWeaponData.item_name):get_definition().RW_gun_capabilities.suitable_ammo[1][2]
+								bots.data[self.bot_name].ammo_of_weapon.hand_weapon = 0--ammo
 								bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
 								bots.data[self.bot_name].weapons.hand_weapon = HandWeaponData.item_name
 								core.log("action", "Bot "..BotName.." did buy: "..HandWeaponData.item_name)
 							end
 						else
-							bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
-							bots.data[self.bot_name].weapons.hard_weapon = HandWeaponData.item_name
-							core.log("action", "Bot "..BotName.." did buy: "..HandWeaponData.item_name)
+							--bots.data[LuaEntity.bot_name].money = bots.data[LuaEntity.bot_name].money - HandWeaponData.price
+							--bots.data[self.bot_name].weapons.hard_weapon = HandWeaponData.item_name
+							--core.log("action", "Bot "..BotName.." did buy: "..HandWeaponData.item_name)
+						end
+					else
+						--might set up all
+						if bots.data[self.bot_name].weapons.hand_weapon ~= "" then
+							--set up his default weapon if not hading one
+							bots.data[self.bot_name].weapons.hand_weapon = config.DefaultStartWeapon.weapon
 						end
 					end
 				end
@@ -94,6 +100,7 @@ function bbp.WhileOnPrepareTime(self)
 			-- Prepare Nametag
 			bots.add_nametag(Object, bots.data[BotName].team, BotName)
 			self.object:set_animation(bots.bots_animations[self.bot_name].stand, bots.bots_animations[self.bot_name].anispeed, 0)
+			
 		end
 	else
 		core.log("error", "~BS BOTS: Unknown Object Found!")
@@ -156,7 +163,9 @@ function Logic.Shoot(self, obj)
 				end
 				self.object:set_yaw(dir)
 			else
-				Logic.DoReloadGun(self, typew)
+				if not bots.currently_recharging_gun[self.bot_name] then -- dont recharge multiple times at the same second
+					Logic.DoReloadGun(self, typew)
+				end
 			end
 		end
 	else
@@ -169,25 +178,30 @@ function Logic.Shoot(self, obj)
 	end
 end
 
+bots.currently_recharging_gun = {}
+
 function Logic.DoReloadGun(self, typ)
 	local gun = bots.data[self.bot_name].weapons[typ]
 	local item = ItemStack(gun)
 	if item and item:get_name() ~= "" then
-		bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().RW_gun_capabilities.gun_unloaded
-		self.cooldown = item:get_definition().RW_gun_capabilities.gun_reload
-		Logic.QueueReloadGun(self, typ)
-		if item:get_definition().RW_gun_capabilities.gun_magazine ~= nil then
-			local pos = self.object:get_pos()
-			local dir = bots.calc_dir(self.object:get_rotation())--player:get_look_dir()
-			local yaw = self.object:get_yaw()--player:get_look_horizontal()
-			if pos and dir and yaw then
-				pos.y = pos.y + 1.4
-				local obj = minetest.add_entity(pos,"rangedweapons:mag")
-				if obj then
-					obj:set_properties({textures = {item:get_definition().RW_gun_capabilities.gun_magazine}})
-					obj:set_velocity({x=dir.x*2, y=dir.y*2, z=dir.z*2})
-					obj:set_acceleration({x=0, y=-5, z=0})
-					obj:set_rotation({x=0,y=yaw,z=0})
+		if not bots.currently_recharging_gun[self.bot_name] then
+			bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().RW_gun_capabilities.gun_unloaded
+			self.cooldown = item:get_definition().RW_gun_capabilities.gun_reload
+			bots.currently_recharging_gun[self.bot_name] = true
+			Logic.QueueReloadGun(self, typ)
+			if item:get_definition().RW_gun_capabilities.gun_magazine ~= nil then
+				local pos = self.object:get_pos()
+				local dir = bots.calc_dir(self.object:get_rotation())--player:get_look_dir()
+				local yaw = self.object:get_yaw()--player:get_look_horizontal()
+				if pos and dir and yaw then
+					pos.y = pos.y + 1.4
+					local obj = minetest.add_entity(pos,"rangedweapons:mag")
+					if obj then
+						obj:set_properties({textures = {item:get_definition().RW_gun_capabilities.gun_magazine}})
+						obj:set_velocity({x=dir.x*2, y=dir.y*2, z=dir.z*2})
+						obj:set_acceleration({x=0, y=-5, z=0})
+						obj:set_rotation({x=0,y=yaw,z=0})
+					end
 				end
 			end
 		end
@@ -228,13 +242,15 @@ function Logic.QueueReloadGun(self, type_of_gun)
 						if ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition() and ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities then
 							self.cooldown = ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities.gun_reload
 						end
-						bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().rw_next_reload or ""
+						bots.data[self.bot_name].cache_weapon_to_recharge = item:get_definition().rw_next_reload or bots.data[self.bot_name].weapons[type_of_gun]
 					end
 				end
 				if bots.data[self.bot_name].cache_weapon_to_recharge == bots.data[self.bot_name].weapons[type_of_gun] then
 					bots.data[self.bot_name].ammo_of_weapon[type_of_gun] = ItemStack(bots.data[self.bot_name].weapons[type_of_gun]):get_definition().RW_gun_capabilities.suitable_ammo[1][2]
 					self.cooldown = nil
 					bots.data[self.bot_name].cache_weapon_to_recharge = nil
+					bots.currently_recharging_gun[self.bot_name] = nil
+					bots.chat(self, "recharged_weapon")
 					return true
 				end
 			end
@@ -373,6 +389,23 @@ function Logic.OnStep(self)
 					}
 					local dir = math.atan2(offset_to.y, offset_to.x) - (math.pi/2)
 					self.object:set_yaw(dir)
+				end
+				-- Make bot recharge his gun
+				local hard_recharged = false
+				if time >= 4 and time <= 5 then
+					-- recharge first weapon, the massive
+					if bots.data[self.bot_name].weapons.hard_weapon ~= "" then
+						if bots.data[self.bot_name].ammo_of_weapon.hard_weapon and bots.data[self.bot_name].ammo_of_weapon.hard_weapon <= 0 then
+							hard_recharged = true
+							Logic.DoReloadGun(self, "hard_weapon")
+						end
+					end
+				end
+				if (time >= 3 and time <= 4) or (hard_recharged == false and time <= 5) then
+					-- now the soft weapon
+					if bots.data[self.bot_name].ammo_of_weapon.hand_weapon and bots.data[self.bot_name].ammo_of_weapon.hand_weapon <= 0 then
+						Logic.DoReloadGun(self, "hand_weapon")
+					end
 				end
 			end
 			Logic.Clock[self.bot_name] = 0
