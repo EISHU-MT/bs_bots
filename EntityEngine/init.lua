@@ -140,17 +140,31 @@ function BsEntities.GetStandPos(thing)
 	end
 end
 -- lq_freejump
+-- dont make multiple jumps on one queue!
+BsEntities.QueuedJumpsFor = {}
 function BsEntities.QueueFreeJump(self)
 	local phase = 1
 	--print("case")
+	if BsEntities.QueuedJumpsFor[self.bot_name] == true then
+		return
+	else
+		BsEntities.QueuedJumpsFor[self.bot_name] = true
+	end
 	local func = function(self)
 		local vel=self.object:get_velocity()
+		if not vel then
+			BsEntities.QueuedJumpsFor[self.bot_name] = nil
+			return true
+		end
 		if phase == 1 then
 			vel.y=vel.y+6
 			self.object:set_velocity(vel)
 			phase = 2
 		else
-			if vel.y <= 0.01 then return true end
+			if vel.y <= 0.01 then
+				BsEntities.QueuedJumpsFor[self.bot_name] = nil
+				return true
+			end
 			local dir = minetest.yaw_to_dir(self.object:get_yaw())
 			dir.y=vel.y
 			self.object:set_velocity(dir)
@@ -175,10 +189,11 @@ BsEntities.LatestAccAndVelValues = {}
 -- Entity
 function BsEntities.OnSelfFunction(self, dtime, moveresult)
 	self.dtime = dtime
+	--if not self.__time then self.__time = 0 end
 	--self.__time = self.__time + dtime
 	self.totaltime = self.totaltime + dtime
 	if BsEntities.Ticks.state then
-		--if self.__time >= 0.01 then
+		--if self.__time >= 0.5 then
 		--BsEntities.LatestAccAndVelValues[self.bot_name] = {
 			--	velocity = self.object:get_velocity(),
 			--	acceleration = self.object:get_acceleration()
@@ -190,7 +205,6 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 			--if (core.registered_items[core.get_node(underpos).name].walkable == false) and moveresult.touching_ground then
 			--	self.isonground = false
 			--end
-			Logic.OnStep(self)
 			self.hunter(self)
 			self.MovementAct(self)
 			Logic.DoShootProcess(self)
@@ -201,7 +215,10 @@ function BsEntities.OnSelfFunction(self, dtime, moveresult)
 					end
 				end
 			end
-			--self.__time = 0
+			--if self.__time >= 0.5 then
+				Logic.OnStep(self)
+			--	self.__time = 0
+			--end
 		--end
 	end
 end
