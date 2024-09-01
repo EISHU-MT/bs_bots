@@ -290,25 +290,27 @@ function Logic.OldOnStep(self)
 			loaded_bots = {}
 			-- Hunt logic
 			if self.isonground then
-				if C(maps.current_map.teams) > 2 then
-					local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
-					if team_enemies and C(team_enemies) >= 1 then
-						local selected = team_enemies[1]
-						if selected and bs.team[selected].state == "alive" then
-							local enemies = Logic.ReturnAliveEnemies(bs.get_team_players(selected))
+				if not bots.hunting[self.bot_name] then
+					if C(maps.current_map.teams) > 2 then
+						local team_enemies = bs.enemy_team(bots.data[self.bot_name].team)
+						if team_enemies and C(team_enemies) >= 1 then
+							local selected = team_enemies[1]
+							if selected and bs.team[selected].state == "alive" then
+								local enemies = Logic.ReturnAliveEnemies(bs.get_team_players(selected))
+								local enemy = enemies[math.random(1, C(enemies))]
+								if enemy then
+									bots.Hunt(self, enemy)
+								end
+							end
+						end
+					else
+						local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
+						if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
+							local enemies = Logic.ReturnAliveEnemies(bs.get_team_players(team_enemy))
 							local enemy = enemies[math.random(1, C(enemies))]
 							if enemy then
 								bots.Hunt(self, enemy)
 							end
-						end
-					end
-				else
-					local team_enemy = bs.enemy_team(bots.data[self.bot_name].team)
-					if team_enemy and team_enemy ~= "" and bs.team[team_enemy].state == "alive" then
-						local enemies = Logic.ReturnAliveEnemies(bs.get_team_players(team_enemy))
-						local enemy = enemies[math.random(1, C(enemies))]
-						if enemy then
-							bots.Hunt(self, enemy)
 						end
 					end
 				end
