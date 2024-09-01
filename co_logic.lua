@@ -15,7 +15,7 @@ function bots.co_logic(self, mv)
 						else
 							bots.data[self.bot_name].object:set_animation(bots.bots_animations[self.bot_name].mine, bots.bots_animations[self.bot_name].anispeed, 0)
 						end
-						collisions.object:punch(self.object, nil, {damage_groups = {fleshy = 5}}, nil)
+						collisions.object:punch(self.object, nil, {damage_groups = {fleshy = 2}}, nil)
 						bots.in_hand_weapon[self.bot_name] = "default:sword_steel"
 						if bots.data[self.bot_name].wield_item_obj then
 							bots.data[self.bot_name].wield_item_obj:set_properties({
