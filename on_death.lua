@@ -7,8 +7,8 @@ return function(self, killer)
 		local killer_weapon = ""
 		local image = "hand_kill.png"
 		if killer:is_player() then
+			killer_weapon = killer:get_wielded_item():get_name()
 			if killer_team ~= bots.data[self.bot_name].team or config.PvpEngine.FriendShoot then
-				killer_weapon = killer:get_wielded_item():get_name()
 				bank.player_add_value(killer, 10)
 				if PlayerKills[Name(killer)] and PlayerKills[Name(killer)].kills then
 					PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
@@ -101,8 +101,9 @@ return function(self, killer)
 		local killer_weapon = ""
 		local image = "hand_kill.png"
 		if killer:is_player() then
+			killer_weapon = killer:get_wielded_item():get_name()
 			if killer_team ~= bots.data[self.bot_name].team or config.PvpEngine.FriendShoot then
-				killer_weapon = killer:get_wielded_item():get_name()
+				
 				bank.player_add_value(killer, 10)
 				if PlayerKills[Name(killer)] and PlayerKills[Name(killer)].kills then
 					PlayerKills[Name(killer)].kills = PlayerKills[Name(killer)].kills + 1
