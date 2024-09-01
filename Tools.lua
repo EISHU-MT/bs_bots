@@ -155,6 +155,11 @@ core.register_on_mods_loaded(exec_on_mods)
 bots.last_path_endpoint = {}
 
 function bots.find_path_to_F(pos, tpos, width, self)
+	if not self then
+		core.log("error", "(Overrider of bs_bots | Special functions) is old, please update or contact maintainer of the overrider: At bots.find_path_to_F(1,2,3, self)")
+		core.log("error", "Cancelling request and returning nothing")
+		return
+	end
 	width = width or 1
 	if bots.last_path_endpoint[self.bot_name] then
 		if vector.distance(bots.last_path_endpoint[self.bot_name].endpoint, tpos) < 4 then
