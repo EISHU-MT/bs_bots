@@ -1,4 +1,6 @@
--- OBJ
+-- Change shoot mechanism
+
+--[[-- OBJ
 local function on_step(self, dtime, mr)
 	if self.timer >= 1 then
 		self.object:remove()
@@ -112,7 +114,7 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 				local spawnpos_x = pos.x
 				local spawnpos_y = pos.y
 				local spawnpos_z = pos.z
-				local obj = minetest.add_entity({x=spawnpos_x,y=spawnpos_y,z=spawnpos_z}, entname)
+				Pleaselocal obj = minetest.add_entity({x=spawnpos_x,y=spawnpos_y,z=spawnpos_z}, entname)
 				local ent = obj:get_luaentity()
 				local size = 0.1
 				obj:set_properties({
@@ -126,14 +128,14 @@ bots.shoot = function(projectiles, dmg, entname, shoot_sound, combined_velocity,
 				ent.owner = data.object
 				ent.damage = dmg or {fleshy = bots.default_bullet_damage}
 				
-				bullets_cache[FormRandomString(4)] = {obj = obj, time = 2}
+				--bullets_cache[FormRandomString(4)] = {obj = obj, time = 2}
 				
 				obj:set_pos(pos)
 				obj:set_velocity({x=direction.x * combined_velocity, y=direction.y * combined_velocity, z=direction.z * combined_velocity})
 			end
 		end
-	else
-		bots.Hunt(self, obj)
+	--else
+		--bots.Hunt(self, obj)
 	end
 end
 
@@ -148,10 +150,166 @@ local function on_step(dtime)
 end
 
 core.register_globalstep(on_step)
+--]]
 
+local bullet_api = {}
 
+bullet_api.calc_time_per_dist = function(dist, block_per_sec)
+	return (dist / block_per_sec) / 2
+end
 
+bullet_api.process = function(ray, user, look_dir, def)
+	local hitpoint = ray:hit_object_or_node({
+		node = function(ndef)
+			return (ndef.walkable == true and ndef.pointable == true) or ndef.groups.liquid
+		end,
+		object = function(obj)
+			return obj ~= user
+		end
+	})
+	if hitpoint then
+		if hitpoint.type == "node" then
+			local node = minetest.get_node(hitpoint.under)
+			local nodedef = minetest.registered_nodes[node.name]
+			if nodedef.on_ranged_shoot or nodedef.groups.snappy or (nodedef.groups.oddly_breakable_by_hand or 0) >= 3 then
+				if nodedef.on_ranged_shoot then
+					nodedef.on_ranged_shoot(hitpoint.under, node, user, def.type)
+				else
+					minetest.dig_node(hitpoint.under)
+				end
+			else
+				if nodedef.walkable and nodedef.pointable then
+					minetest.add_particle({
+						pos = vector.subtract(hitpoint.intersection_point, vector.multiply(look_dir, 0.04)),
+						velocity = vector.new(),
+						acceleration = {x=0, y=0, z=0},
+						expirationtime = def.bullethole_lifetime or 3,
+						size = 1,
+						collisiondetection = false,
+						texture = "rangedweapons_bullethole.png",
+					})
+				elseif nodedef.groups.liquid then
+					minetest.add_particlespawner({
+						amount = 10,
+						time = 0.1,
+						minpos = hitpoint.intersection_point,
+						maxpos = hitpoint.intersection_point,
+						minvel = {x=look_dir.x * 3, y=4, z=-look_dir.z * 3},
+						maxvel = {x=look_dir.x * 4, y=6, z= look_dir.z * 4},
+						minacc = {x=0, y=-10, z=0},
+						maxacc = {x=0, y=-13, z=0},
+						minexptime = 1,
+						maxexptime = 1,
+						minsize = 0.5,
+						maxsize = 1,
+						collisiondetection = false,
+						glow = 3,
+						node = {name = nodedef.name},
+					})
+					if def.liquid_travel_dist then
+						bullet_api.process(bullet_api.bc(hitpoint.intersection_point,vector.add(hitpoint.intersection_point, vector.multiply(look_dir, def.liquid_travel_dist)), true, false), user, look_dir, def)
+					end
+				end
+			end
+		elseif hitpoint.type == "object" then
+			hitpoint.ref:punch(user, nil, {damage_groups = def.damage})
+		end
+	end
+end
 
+bullet_api.bullet_colbox = {-0.0015,-0.0015,-0.0015,0.0015,0.0015,0.0015}
+
+bullet_api.bc = function(pos1, pos2, objects, liquids)
+	minetest.add_particle({
+		pos = pos1,
+		velocity = vector.multiply(vector.direction(pos1, pos2), 400),
+		acceleration = {x=0, y=0, z=0},
+		expirationtime = 0.1,
+		size = 1,
+		collisiondetection = true,
+		collision_removal = true,
+		object_collision = objects,
+		texture = "rangedweapons_bullet_fly.png",
+		glow = 0
+	})
+	local raycast = minetest.raycast(pos1, pos2, objects, liquids)
+	local bulletcast = {
+		raycast = raycast,
+		hit_object_or_node = function(self, options)
+			if not options then
+				options = {}
+			end
+			for hitpoint in self.raycast do
+				if hitpoint.type == "node" then
+					if not options.node or options.node(minetest.registered_nodes[minetest.get_node(hitpoint.under).name]) then
+						return hitpoint
+					end
+				elseif hitpoint.type == "object" then
+					if not options.object or options.object(hitpoint.ref) then
+						return hitpoint
+					end
+				end
+			end
+		end,
+	}
+	setmetatable(bulletcast, {
+		__index = function(table, key)
+			local not_raycast_func = rawget(table, key)
+			if not_raycast_func then
+				return not_raycast_func
+			else
+				return function(self, ...)
+					local sraycast = rawget(self, "raycast")
+					return sraycast[key](sraycast, ...)
+				end
+			end
+		end,
+		__call = function(table, ...)
+			return rawget(table, "raycast")(...)
+		end
+	})
+	return bulletcast
+end
+
+bullet_api.sbc = function(pos1, pos2, objects, liquids, amount)
+	local rays = {}
+	amount = amount or 1
+	if amount > 1 then
+		for i = 1, amount do
+			rays[i] = bullet_api.bc(pos1, vector.offset(pos2, math.random(-2, 2), math.random(-2, 2), math.random(-2, 2)), objects, liquids)
+		end
+	else
+		return {bullet_api.bc(pos1, pos2, objects, liquids)}
+	end
+	return rays
+end
+
+bullet_api.std = function(player, obj)
+	local look_dir = vector.direction(player:get_pos(), obj:get_pos())
+	local spawnpos = vector.offset(player:get_pos(), 0, player:get_properties().eye_height, 0)
+	spawnpos = vector.add(spawnpos, vector.multiply(look_dir, 0.4))
+	return spawnpos, look_dir
+end
+
+bots.shoot = function(_, dmg, entname, shoot_sound, combined_velocity, data, obj)
+	local pos = data.object:get_pos()
+	local dir = vector.direction(pos, obj:get_pos())--bots.calc_dir(data.object:get_rotation())
+	local yaw = data.object:get_yaw()
+	if pos and dir and yaw then
+		minetest.sound_play(shoot_sound, {pos = pos, gain = 0.5, max_hear_distance = 60})
+		-- BEGIN NEW SHOOT SYSTEM - RAYCAST
+		local pos1, lookdir = bullet_api.std(data.object,  obj)
+		local pos2 = vector.add(pos1, vector.multiply(lookdir, 100))
+		local rays = bullet_api.sbc(pos1, pos2, true, true, (tonumber(projNum) or 1))
+		local def = {
+			damage = dmg,
+			cooldown = bullet_api.calc_time_per_dist(vector.distance(pos1, pos2), combined_velocity)
+		}
+		for _, ray in pairs(rays) do
+			bullet_api.process(ray, data.object, lookdir, def)
+		end
+	end
+end
 
 
 
