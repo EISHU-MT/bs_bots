@@ -164,6 +164,8 @@ local OnDeath = dofile(bots.modpath.."/on_death.lua")
 local OnHurt = dofile(bots.modpath.."/on_hurt.lua")
 dofile(bots.modpath.."/logic.lua")
 
+dofile(bots.modpath.."/callbacks.lua")
+
 dofile(bots.modpath.."/BAS_Overrider.lua")
 dofile(bots.modpath.."/Tools.lua")
 dofile(bots.modpath.."/bullet_mechanism.lua")
@@ -176,7 +178,6 @@ dofile(bots.modpath.."/shoot_queue.lua")
 dofile(bots.modpath.."/server_controller.lua")
 dofile(bots.modpath.."/dead_body.lua")
 dofile(bots.modpath.."/co_logic.lua")
-dofile(bots.modpath.."/callbacks.lua")
 dofile(bots.modpath.."/bots_respawner.lua")
 dofile(bots.modpath.."/singleplayer_env_fixer.lua")
 
