@@ -69,6 +69,9 @@ function bots.assign_path_to(self, path, speed)
 		if bots.direct_walk[self.bot_name] then -- high priority
 			return
 		end
+		if path[1] then
+			return
+		end
 		if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
 			path = bots.find_path_to(vector.round(self.object:get_pos()), CheckPos(bots.hunting[self.bot_name]:get_pos()), nil, self) -- Reset path if bot are away from last path
 			-- dont do anything if interrupted by door act
