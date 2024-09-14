@@ -69,7 +69,7 @@ function bots.assign_path_to(self, path, speed)
 		if bots.direct_walk[self.bot_name] then -- high priority
 			return
 		end
-		if path[1] then
+		if not path[1] then
 			return
 		end
 		if vector.distance(path[1], self.object:get_pos()) > 1 and BsEntities.IsEntityAlive(bots.hunting[self.bot_name]) then
