@@ -5,6 +5,13 @@
 	This will override the entire BA engine for compatibility
 --]]
 
+do
+	core.log("error", "Please disable this mod 'bs_bots', its obsolete!")
+	core.log("error", "This mod is already in CS:MT (BlockAssault) Game!")
+	error("Please disable this mod 'bs_bots'!\nThis is already in game")
+	return
+end
+
 dofile(core.get_modpath(core.get_current_modname()).."/EntityEngine/init.lua")
 
 local switcher = false
@@ -180,6 +187,7 @@ dofile(bots.modpath.."/dead_body.lua")
 dofile(bots.modpath.."/co_logic.lua")
 dofile(bots.modpath.."/bots_respawner.lua")
 dofile(bots.modpath.."/singleplayer_env_fixer.lua")
+dofile(bots.modpath.."/get_weapon.lua")
 
 function bots.register_bot(def)
 	if def.name and def.team and def.favorite_weapons then
